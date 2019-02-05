@@ -1,3 +1,4 @@
+require 'redcarpet'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/content_for'
@@ -20,13 +21,29 @@ get "/" do
   erb :index
 end
 
+def render_markdown(text)
+  markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  markdown.render(text)
+end
+
+def load_file_content(path)
+  content = File.read(path)
+  case File.extname(path)
+  when '.txt'
+    headers['Content-Type'] = 'text/plain'
+    content
+  when '.md'
+    headers['Content-Type'] = 'text/html'
+    render_markdown(content)
+  end
+end
+
 # display document
 get '/:file_name' do
   doc = params[:file_name]
   file_path = @root + '/data/' + doc
   if File.file?(file_path)
-    headers['Content-Type'] = 'text/plain'
-    @document = File.read(file_path)
+    @document = load_file_content(file_path)
   else
     session[:error] = "#{doc} does not exist."
     redirect '/'
