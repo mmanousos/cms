@@ -1,13 +1,14 @@
 <% if session[:error] %>
   <p><%= session.delete(:error) %></p>
+<% elsif session[:success] %>
+  <p><em><%= session.delete(:success) %></em></p>
 <% end %>
 
 <ul>
   <% @files.each do |file_name| %>
     <li>
-      <a href="/<%= file_name %>">
-        <%= file_name %>
-      </a>
+      <a href="/<%= file_name %>"><strong><%= file_name %></strong></a>
+      <a href="/<%= file_name %>/edit"><button type='button'>edit</button></a>
     </li>
   <% end %>
 </ul>
