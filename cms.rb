@@ -22,7 +22,13 @@ end
 
 # display document
 get '/:file_name' do
-  file_path = @root + '/data/' + params[:file_name]
-  headers['Content-Type'] = 'text/plain'
-  @doc = File.read(file_path)
+  doc = params[:file_name]
+  file_path = @root + '/data/' + doc
+  if File.file?(file_path)
+    headers['Content-Type'] = 'text/plain'
+    @document = File.read(file_path)
+  else
+    session[:error] = "#{doc} does not exist."
+    redirect '/'
+  end
 end

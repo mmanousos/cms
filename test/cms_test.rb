@@ -28,4 +28,16 @@ class CmsTest < Minitest::Test
     assert_equal "text/plain", last_response["Content-Type"]
     assert_includes(last_response.body, 'Yukihiro Matsumoto')
   end
+
+  def test_document_not_found
+    get '/bad_doc.erb'
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, 'bad_doc.erb does not exist.')
+
+    get '/'
+    refute_includes(last_response.body, 'bad_doc.erb does not exist.')
+  end
 end
