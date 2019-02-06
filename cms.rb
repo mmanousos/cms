@@ -66,7 +66,7 @@ end
 # submit changes to file
 post '/:file_name' do
   doc = params[:file_name]
-  file_path = File.join(file_path, doc)
+  file_path = File.join(data_path, doc)
   File.write(file_path, params[:content])
   session[:success] = "#{doc} has been updated."
   redirect '/'
