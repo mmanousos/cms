@@ -29,7 +29,7 @@ def data_path
   end
 end
 
-get "/" do
+get '/' do
   pattern = File.join(data_path, '*')
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
@@ -81,4 +81,21 @@ post '/:file_name' do
   File.write(file_path, params[:content])
   session[:success] = "#{doc} has been updated."
   redirect '/'
+end
+
+get '/index/new_file' do
+  erb :new_file, layout: :layout
+end
+
+post '/:title' do
+  doc_name = params[:title].strip
+  if doc_name.empty?
+    session[:error] = 'A name is required.'
+    erb :new_file
+  else
+    # create new document in data folder
+    File.new("/data/#{doc_name}")
+    session[:success] = "#{doc_name} was created."
+    redirect '/'
+  end
 end
