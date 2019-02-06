@@ -10,6 +10,17 @@ configure do
   set :erb, :escape_html => true
 end
 
+helpers do
+  # get flash message
+  def get_message
+    if session[:error]
+      :error
+    elsif session[:success]
+      :success
+    end
+  end
+end
+
 def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
@@ -39,7 +50,7 @@ def load_file_content(path)
     content
   when '.md'
     headers['Content-Type'] = 'text/html'
-    render_markdown(content)
+    erb render_markdown(content)
   end
 end
 

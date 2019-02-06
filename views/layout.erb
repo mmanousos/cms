@@ -2,9 +2,17 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Your Files Are Here!</title>
+    <link rel="stylesheet" href="/stylesheets/cms.css" type="text/css" />
   </head>
   <body>
+    <% message = get_message %>
+    <% if message %>
+      <div class="message">
+        <p><%= session.delete(message) %></p>
+      </div>
+    <% end %>
+
     <%== yield %>
   </body>
 </html>
