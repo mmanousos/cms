@@ -87,15 +87,21 @@ get '/index/new_file' do
   erb :new_file, layout: :layout
 end
 
-post '/:title' do
-  doc_name = params[:title].strip
-  if doc_name.empty?
+def create_document(name, content = "")
+  File.open(File.join(data_path, name), "w") do |file|
+    file.write(content)
+  end
+end
+
+post '/' do
+  @doc_name = params[:title].strip
+  if @doc_name.empty?
     session[:error] = 'A name is required.'
     erb :new_file
   else
     # create new document in data folder
-    File.new("/data/#{doc_name}")
-    session[:success] = "#{doc_name} was created."
+    create_document(@doc_name)
+    session[:success] = "#{@doc_name} was created."
     redirect '/'
   end
 end

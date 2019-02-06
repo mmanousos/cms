@@ -1,5 +1,5 @@
-<form action='/title' method='post'>
+<form action='/' method='post'>
   <label for='title'><h3>Add a new document:</h3></label>
-  <input type='text' name='title' id='title' size='50' maxlength='100' placeholder=<%= "file" || params[:title] %> >
+  <input type='text' name='title' id='title' size='50' maxlength='100' value="<%= params[:title] || @doc_name %>" placeholder='New file name with extension' >
   <p><button type='submit'>create</button></p>
 </form>
