@@ -93,15 +93,22 @@ def create_document(name, content = "")
   end
 end
 
+def valid_extension?(name)
+  extension = File.extname(name)
+  extension == '.md' || extension == '.txt'
+end
+
 post '/' do
-  @doc_name = params[:title].strip
-  if @doc_name.empty?
+  doc_name = params[:title].strip
+  if doc_name.empty?
     session[:error] = 'A name is required.'
     erb :new_file
+  elsif !valid_extension?(doc_name)
+    session[:error] = 'Please include an extension for your file (use ".md" or ".txt").'
+    erb :new_file
   else
-    # create new document in data folder
-    create_document(@doc_name)
-    session[:success] = "#{@doc_name} was created."
+    create_document(doc_name)
+    session[:success] = "#{doc_name} was created."
     redirect '/'
   end
 end
