@@ -10,14 +10,19 @@ configure do
   set :erb, :escape_html => true
 end
 
-before do
-  @root = File.expand_path("..", __FILE__)
-  @files = Dir.glob(@root + "/data/*").map do |path|
-    File.basename(path)
+def data_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/data', __FILE__)
+  else
+    File.expand_path('../data', __FILE__)
   end
 end
 
 get "/" do
+  pattern = File.join(data_path, '*')
+  @files = Dir.glob(pattern).map do |path|
+    File.basename(path)
+  end
   erb :index
 end
 
@@ -41,7 +46,7 @@ end
 # display document
 get '/:file_name' do
   doc = params[:file_name]
-  file_path = @root + '/data/' + doc
+  file_path = File.join(data_path, doc)
   if File.file?(file_path)
     @document = load_file_content(file_path)
   else
@@ -53,7 +58,7 @@ end
 # display edit form
 get '/:file_name/edit' do
   @doc = params[:file_name]
-  file_path = @root + '/data/' + @doc
+  file_path = File.join(data_path, @doc)
   @document = File.read(file_path)
   erb :edit
 end
@@ -61,7 +66,7 @@ end
 # submit changes to file
 post '/:file_name' do
   doc = params[:file_name]
-  file_path = @root + '/data/' + doc
+  file_path = File.join(file_path, doc)
   File.write(file_path, params[:content])
   session[:success] = "#{doc} has been updated."
   redirect '/'
