@@ -47,4 +47,31 @@ class CmsTest < Minitest::Test
     assert_equal "text/html", last_response["Content-Type"]
     assert_includes(last_response.body, "<li>natural to read</li>\n<li>easy to write</li>")
   end
+
+  def test_edit
+    get '/about.md/edit'
+    assert_equal(200, last_response.status)
+    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
+    assert_includes(last_response.body, "textarea")
+    assert_includes(last_response.body, "form")
+    assert_includes(last_response.body, "button")
+  end
+
+  def test_post_edit
+    post '/changes.txt', content: 'new content'
+
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, 'changes.txt has been updated.')
+
+    get '/'
+    assert_equal(200, last_response.status)
+    refute_includes(last_response.body, 'changes.txt has been updated.')
+
+    get '/changes.txt'
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'new content')
+  end
 end
