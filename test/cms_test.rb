@@ -122,11 +122,11 @@ class CmsTest < Minitest::Test
 
   def test_post_invalid_doc_name
     post '/', file_name: 'test'
-    assert_equal(200, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Please include an extension')
 
     post '/', file_name: '   '
-    assert_equal(200, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
 end

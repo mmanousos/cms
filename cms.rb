@@ -102,9 +102,11 @@ post '/' do
   doc_name = params[:file_name].strip
   if doc_name.empty?
     session[:error] = 'A name is required.'
+    status 422
     erb :new_file
   elsif !valid_extension?(doc_name)
     session[:error] = 'Please include an extension for your file (use ".md" or ".txt").'
+    status 422
     erb :new_file
   else
     create_document(doc_name)
