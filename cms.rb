@@ -99,7 +99,7 @@ def valid_extension?(name)
 end
 
 post '/' do
-  doc_name = params[:title].strip
+  doc_name = params[:file_name].strip
   if doc_name.empty?
     session[:error] = 'A name is required.'
     erb :new_file
