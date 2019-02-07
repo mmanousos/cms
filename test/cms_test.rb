@@ -27,7 +27,7 @@ class CmsTest < Minitest::Test
       file.write(content)
     end
   end
-  
+
   def test_index
     create_document("about.md")
     create_document("changes.txt")
@@ -97,5 +97,36 @@ class CmsTest < Minitest::Test
     get '/changes.txt'
     assert_equal(200, last_response.status)
     assert_includes(last_response.body, 'new content')
+  end
+
+  def test_new_doc_form
+    get '/index/new_file'
+    assert_equal(200, last_response.status)
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, "<form action='/' method='post'>")
+    assert_includes(last_response.body, "<input type='text' name='file_name'")
+    assert_includes(last_response.body, "<button type='submit'>")
+  end
+
+  def test_post_new_doc
+    post '/', file_name: 'test.md'
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_includes(last_response.body, 'test.md was created.')
+
+    get '/'
+    assert_equal(200, last_response.status)
+    refute_includes(last_response.body, 'test.md was created.')
+  end
+
+  def test_post_invalid_doc_name
+    post '/', file_name: 'test'
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'Please include an extension')
+
+    post '/', file_name: '   '
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'A name is required.')
   end
 end
