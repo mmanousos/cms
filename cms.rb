@@ -54,6 +54,40 @@ def load_file_content(path)
   end
 end
 
+# display form to create new document
+get '/new' do
+  erb :new_file, layout: :layout
+end
+
+def create_document(name, content = "")
+  File.open(File.join(data_path, name), "w") do |file|
+    file.write(content)
+  end
+end
+
+def valid_extension?(name)
+  extension = File.extname(name)
+  extension == '.md' || extension == '.txt'
+end
+
+# validate and create new document
+post '/create' do
+  doc_name = params[:file_name].strip
+  if doc_name.empty?
+    session[:error] = 'A name is required.'
+    status 422
+    erb :new_file
+  elsif !valid_extension?(doc_name)
+    session[:error] = 'Please include an extension for your file (use ".md" or ".txt").'
+    status 422
+    erb :new_file
+  else
+    create_document(doc_name)
+    session[:success] = "#{doc_name} was created."
+    redirect '/'
+  end
+end
+
 # display document
 get '/:file_name' do
   doc = params[:file_name]
@@ -81,36 +115,4 @@ post '/:file_name' do
   File.write(file_path, params[:content])
   session[:success] = "#{doc} has been updated."
   redirect '/'
-end
-
-get '/index/new_file' do
-  erb :new_file, layout: :layout
-end
-
-def create_document(name, content = "")
-  File.open(File.join(data_path, name), "w") do |file|
-    file.write(content)
-  end
-end
-
-def valid_extension?(name)
-  extension = File.extname(name)
-  extension == '.md' || extension == '.txt'
-end
-
-post '/' do
-  doc_name = params[:file_name].strip
-  if doc_name.empty?
-    session[:error] = 'A name is required.'
-    status 422
-    erb :new_file
-  elsif !valid_extension?(doc_name)
-    session[:error] = 'Please include an extension for your file (use ".md" or ".txt").'
-    status 422
-    erb :new_file
-  else
-    create_document(doc_name)
-    session[:success] = "#{doc_name} was created."
-    redirect '/'
-  end
 end
