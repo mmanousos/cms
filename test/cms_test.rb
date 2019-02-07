@@ -100,16 +100,16 @@ class CmsTest < Minitest::Test
   end
 
   def test_new_doc_form
-    get '/index/new_file'
+    get '/new'
     assert_equal(200, last_response.status)
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, "<form action='/' method='post'>")
+    assert_includes(last_response.body, "<form action='/create' method='post'>")
     assert_includes(last_response.body, "<input type='text' name='file_name'")
     assert_includes(last_response.body, "<button type='submit'>")
   end
 
   def test_post_new_doc
-    post '/', file_name: 'test.md'
+    post '/create', file_name: 'test.md'
     assert_equal(302, last_response.status)
 
     get last_response['Location']
@@ -121,11 +121,11 @@ class CmsTest < Minitest::Test
   end
 
   def test_post_invalid_doc_name
-    post '/', file_name: 'test'
+    post '/create', file_name: 'test'
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Please include an extension')
 
-    post '/', file_name: '   '
+    post '/create', file_name: '   '
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
