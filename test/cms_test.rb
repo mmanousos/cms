@@ -129,4 +129,19 @@ class CmsTest < Minitest::Test
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
+
+  def test_delete
+    create_document('to_delete.md', '')
+    post '/to_delete.md/delete'
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, 'to_delete.md has been deleted.')
+
+    get '/'
+    assert_equal(200, last_response.status)
+    refute_includes(last_response.body, 'to_delete.md has been deleted.')
+    refute_includes(last_response.body, 'to_delete.md')
+  end
 end
