@@ -88,6 +88,14 @@ post '/create' do
   end
 end
 
+post '/:file_name/delete' do
+  doc = params[:file_name]
+  file_path = File.join(data_path, doc)
+  File.delete(file_path)
+  session[:success] = "#{doc} has been deleted."
+  redirect '/'
+end
+
 # display document
 get '/:file_name' do
   doc = params[:file_name]

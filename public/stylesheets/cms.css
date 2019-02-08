@@ -12,3 +12,7 @@ body {
   padding-left: inherit;
   margin: 5px;
 }
+
+.delete {
+  display: inline;
+}
