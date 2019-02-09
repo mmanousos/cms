@@ -16,3 +16,7 @@ body {
 .inline {
   display: inline;
 }
+
+.italic {
+  font-style: italic;
+}

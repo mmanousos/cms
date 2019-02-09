@@ -9,4 +9,14 @@
     </li>
   <% end %>
 </ul>
-<a href='/new'>New Document</a>
+
+<p><a href='/new'>New Document</a></p>
+
+<% if session[:signed_in] %>
+  <form class="inline italic" action="/sign_out" method="post">
+    Signed in as <%= session[:username] %>.
+    <button type="submit" name="sign_out">Sign Out</button>
+  </form>
+<% else %>
+  <a href="/sign_in"><button type="button" class='sign_in'>Sign In</button></a>
+<% end %>

@@ -70,6 +70,33 @@ def valid_extension?(name)
   extension == '.md' || extension == '.txt'
 end
 
+# display sign in form
+get '/sign_in' do
+  erb :sign_in
+end
+
+# sign in
+post '/sign_in' do
+  username = params[:username].strip
+  password = params[:password].strip
+  if username.downcase == 'admin' && password.downcase == 'password'
+    session[:success] = 'Welcome!'
+    session[:signed_in] = true
+    session[:username] = username
+    redirect '/'
+  else
+    session[:error] = 'Invalid Credentials'
+    erb :sign_in
+  end
+end
+
+# sign out
+post '/sign_out' do
+  session[:signed_in] = false
+  session[:success] = 'You have been signed out.'
+  redirect '/'
+end
+
 # validate and create new document
 post '/create' do
   doc_name = params[:file_name].strip
