@@ -144,4 +144,53 @@ class CmsTest < Minitest::Test
     refute_includes(last_response.body, 'to_delete.md has been deleted.')
     refute_includes(last_response.body, 'to_delete.md')
   end
+
+  def test_sign_in
+    get '/users/signin'
+    assert_equal(200, last_response.status)
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, "id='username'")
+    assert_includes(last_response.body, "id='password'")
+    assert_includes(last_response.body, 'name="sign_in">Sign In</button>')
+
+    post '/users/signin', username: 'admin', password: 'password'
+
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, 'Welcome!')
+    assert_includes(last_response.body, 'Signed in as')
+    assert_includes(last_response.body, 'Sign Out')
+
+    get '/'
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'Signed in as')
+    refute_includes(last_response.body, 'Welcome!')
+    assert_includes(last_response.body, 'Sign Out')
+  end
+
+  def test_failed_sign_in
+    # incorrect sign in - provide no credentials
+    post 'users/signin', username: '', password: ''
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Invalid Credentials')
+
+    post 'users/signin', username: 'xxx', password: 'xxx'
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Invalid Credentials')
+  end
+
+  def test_sign_out
+    post 'users/signout'
+
+    assert_equal(302, last_response.status)
+    get last_response['Location']
+    assert_includes(last_response.body, 'You have been signed out.')
+    assert_includes(last_response.body, 'Sign In')
+
+    get '/'
+    assert_equal(200, last_response.status)
+    refute_includes(last_response.body, 'You have been signed out.')
+  end
 end

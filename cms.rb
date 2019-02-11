@@ -71,12 +71,12 @@ def valid_extension?(name)
 end
 
 # display sign in form
-get '/sign_in' do
+get '/users/signin' do
   erb :sign_in
 end
 
 # sign in
-post '/sign_in' do
+post '/users/signin' do
   username = params[:username].strip
   password = params[:password].strip
   if username.downcase == 'admin' && password.downcase == 'password'
@@ -86,12 +86,13 @@ post '/sign_in' do
     redirect '/'
   else
     session[:error] = 'Invalid Credentials'
+    status 422
     erb :sign_in
   end
 end
 
 # sign out
-post '/sign_out' do
+post '/users/signout' do
   session[:signed_in] = false
   session[:success] = 'You have been signed out.'
   redirect '/'
