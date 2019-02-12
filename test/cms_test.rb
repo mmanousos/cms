@@ -22,6 +22,10 @@ class CmsTest < Minitest::Test
     FileUtils.rm_rf(data_path)
   end
 
+  def session
+    last_request.env['rack.session']
+  end
+
   def create_document(name, content = "")
     File.open(File.join(data_path, name), "w") do |file|
       file.write(content)
@@ -51,13 +55,13 @@ class CmsTest < Minitest::Test
   def test_document_not_found
     get '/bad_doc.erb'
     assert_equal(302, last_response.status)
+    assert_equal('bad_doc.erb does not exist.', session[:error])
 
     get last_response['Location']
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, 'bad_doc.erb does not exist.')
 
     get '/'
-    refute_includes(last_response.body, 'bad_doc.erb does not exist.')
+    refute_equal('bad_doc.erb does not exist.', session[:error])
   end
 
   def test_markdown
@@ -85,14 +89,14 @@ class CmsTest < Minitest::Test
 
     post '/changes.txt', content: 'new content'
     assert_equal(302, last_response.status)
+    assert_equal('changes.txt has been updated.', session[:success])
 
     get last_response['Location']
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, 'changes.txt has been updated.')
 
     get '/'
     assert_equal(200, last_response.status)
-    refute_includes(last_response.body, 'changes.txt has been updated.')
+    refute_equal('changes.txt has been updated.', session[:success])
 
     get '/changes.txt'
     assert_equal(200, last_response.status)
@@ -111,13 +115,11 @@ class CmsTest < Minitest::Test
   def test_post_new_doc
     post '/create', file_name: 'test.md'
     assert_equal(302, last_response.status)
-
-    get last_response['Location']
-    assert_includes(last_response.body, 'test.md was created.')
+    assert_equal('test.md was created.', session[:success])
 
     get '/'
     assert_equal(200, last_response.status)
-    refute_includes(last_response.body, 'test.md was created.')
+    refute_equal('test.md was created.', session[:success] )
   end
 
   def test_post_invalid_doc_name
@@ -134,14 +136,14 @@ class CmsTest < Minitest::Test
     create_document('to_delete.md', '')
     post '/to_delete.md/delete'
     assert_equal(302, last_response.status)
+    assert_equal('to_delete.md has been deleted.', session[:success])
 
     get last_response['Location']
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, 'to_delete.md has been deleted.')
 
     get '/'
     assert_equal(200, last_response.status)
-    refute_includes(last_response.body, 'to_delete.md has been deleted.')
+    refute_equal('to_delete.md has been deleted.', session[:success])
     refute_includes(last_response.body, 'to_delete.md')
   end
 
@@ -151,46 +153,51 @@ class CmsTest < Minitest::Test
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, "id='username'")
     assert_includes(last_response.body, "id='password'")
-    assert_includes(last_response.body, 'name="sign_in">Sign In</button>')
+    assert_includes(last_response.body, 'name="signin">Sign In</button>')
 
-    post '/users/signin', username: 'admin', password: 'password'
+    post '/users/signin', username: 'admin', password: 'secret'
 
     assert_equal(302, last_response.status)
+    assert_equal('Welcome!', session[:success])
 
     get last_response['Location']
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, 'Welcome!')
+
     assert_includes(last_response.body, 'Signed in as')
     assert_includes(last_response.body, 'Sign Out')
 
     get '/'
     assert_equal(200, last_response.status)
     assert_includes(last_response.body, 'Signed in as')
-    refute_includes(last_response.body, 'Welcome!')
+    refute_equal('Welcome!', session[:success])
     assert_includes(last_response.body, 'Sign Out')
   end
 
   def test_failed_sign_in
-    # incorrect sign in - provide no credentials
-    post 'users/signin', username: '', password: ''
+    post '/users/signin', username: '', password: ''
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Invalid Credentials')
 
-    post 'users/signin', username: 'xxx', password: 'xxx'
+    post '/users/signin', username: 'xxx', password: 'xxx'
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Invalid Credentials')
   end
 
   def test_sign_out
-    post 'users/signout'
+    get '/', {}, { 'rack.session' => { username: 'admin', signed_in: true } }
+    assert_includes(last_response.body, 'Signed in as admin')
 
+    post '/users/signout'
     assert_equal(302, last_response.status)
+    assert_equal('You have been signed out.', session[:success])
+
     get last_response['Location']
-    assert_includes(last_response.body, 'You have been signed out.')
+    assert_nil(session[:username])
     assert_includes(last_response.body, 'Sign In')
 
     get '/'
     assert_equal(200, last_response.status)
-    refute_includes(last_response.body, 'You have been signed out.')
+    refute_equal('You have been signed out.', session[:success])
+    refute_includes(last_response.body, 'Signed in as')
   end
 end

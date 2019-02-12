@@ -79,7 +79,7 @@ end
 post '/users/signin' do
   username = params[:username].strip
   password = params[:password].strip
-  if username.downcase == 'admin' && password.downcase == 'password'
+  if username.downcase == 'admin' && password.downcase == 'secret'
     session[:success] = 'Welcome!'
     session[:signed_in] = true
     session[:username] = username
@@ -94,6 +94,7 @@ end
 # sign out
 post '/users/signout' do
   session[:signed_in] = false
+  session.delete(:username)
   session[:success] = 'You have been signed out.'
   redirect '/'
 end
