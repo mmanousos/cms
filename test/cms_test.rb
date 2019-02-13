@@ -32,6 +32,10 @@ class CmsTest < Minitest::Test
     end
   end
 
+  def admin_session
+    { "rack.session" => { username: "admin", signed_in: true } }
+  end
+
   def test_index
     create_document("about.md")
     create_document("changes.txt")
@@ -76,7 +80,7 @@ class CmsTest < Minitest::Test
   def test_edit
     create_document('about.md')
 
-    get '/about.md/edit'
+    get '/about.md/edit', {}, admin_session
     assert_equal(200, last_response.status)
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes(last_response.body, "textarea")
@@ -84,10 +88,16 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, "button")
   end
 
+  def test_edit_not_signed_in
+    get '/about.md/edit'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
+  end
+
   def test_post_edit
     create_document('changes.txt', 'old content')
 
-    post '/changes.txt', content: 'new content'
+    post '/changes.txt', {content: 'new content'}, admin_session
     assert_equal(302, last_response.status)
     assert_equal('changes.txt has been updated.', session[:success])
 
@@ -103,8 +113,15 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'new content')
   end
 
+  def test_post_edit_not_signed_in
+    create_document('changes.txt', 'old content')
+    post '/changes.txt'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
+  end
+
   def test_new_doc_form
-    get '/new'
+    get '/new', {}, admin_session
     assert_equal(200, last_response.status)
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, "<form action='/create' method='post'>")
@@ -112,8 +129,14 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, "<button type='submit'>")
   end
 
+  def test_new_doc_form_not_signed_in
+    get '/new'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
+  end
+
   def test_post_new_doc
-    post '/create', file_name: 'test.md'
+    post '/create', {file_name: 'test.md'}, admin_session
     assert_equal(302, last_response.status)
     assert_equal('test.md was created.', session[:success])
 
@@ -122,19 +145,25 @@ class CmsTest < Minitest::Test
     refute_equal('test.md was created.', session[:success] )
   end
 
+  def test_post_new_doc_not_signed_in
+    post '/create'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
+  end
+
   def test_post_invalid_doc_name
-    post '/create', file_name: 'test'
+    post '/create', {file_name: 'test'}, admin_session
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Please include an extension')
 
-    post '/create', file_name: '   '
+    post '/create', {file_name: '   '}
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
 
   def test_delete
     create_document('to_delete.md', '')
-    post '/to_delete.md/delete'
+    post '/to_delete.md/delete', {file_name: 'to_delete.md'}, admin_session
     assert_equal(302, last_response.status)
     assert_equal('to_delete.md has been deleted.', session[:success])
 
@@ -145,6 +174,13 @@ class CmsTest < Minitest::Test
     assert_equal(200, last_response.status)
     refute_equal('to_delete.md has been deleted.', session[:success])
     refute_includes(last_response.body, 'to_delete.md')
+  end
+
+  def test_delete_not_signed_in
+    create_document('to_delete.md', '')
+    post '/to_delete.md/delete'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
   end
 
   def test_sign_in
@@ -184,7 +220,7 @@ class CmsTest < Minitest::Test
   end
 
   def test_sign_out
-    get '/', {}, { 'rack.session' => { username: 'admin', signed_in: true } }
+    get '/', {}, admin_session
     assert_includes(last_response.body, 'Signed in as admin')
 
     post '/users/signout'

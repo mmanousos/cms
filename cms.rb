@@ -54,8 +54,20 @@ def load_file_content(path)
   end
 end
 
+def signed_in?
+  session[:signed_in]
+end
+
+def verify_signed_in
+  unless signed_in?
+    session[:error] = 'You must be signed in to do that.'
+    redirect '/'
+  end
+end
+
 # display form to create new document
 get '/new' do
+  verify_signed_in
   erb :new_file, layout: :layout
 end
 
@@ -101,6 +113,7 @@ end
 
 # validate and create new document
 post '/create' do
+  verify_signed_in
   doc_name = params[:file_name].strip
   if doc_name.empty?
     session[:error] = 'A name is required.'
@@ -117,7 +130,9 @@ post '/create' do
   end
 end
 
+# delete a document
 post '/:file_name/delete' do
+  verify_signed_in
   doc = params[:file_name]
   file_path = File.join(data_path, doc)
   File.delete(file_path)
@@ -139,14 +154,16 @@ end
 
 # display edit form
 get '/:file_name/edit' do
+  verify_signed_in
   @doc = params[:file_name]
   file_path = File.join(data_path, @doc)
   @document = File.read(file_path)
   erb :edit
 end
 
-# submit changes to file
+# submit edits to file
 post '/:file_name' do
+  verify_signed_in
   doc = params[:file_name]
   file_path = File.join(data_path, doc)
   File.write(file_path, params[:content])
