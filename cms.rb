@@ -1,3 +1,4 @@
+require 'bcrypt'
 require 'redcarpet'
 require 'sinatra'
 require 'sinatra/reloader'

@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.6.0'
 
+gem 'bcrypt', '~> 3.1', '>= 3.1.12'
 gem 'erubis'
 gem 'minitest'
 gem 'rack-test'
