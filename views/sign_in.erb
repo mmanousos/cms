@@ -1,5 +1,7 @@
 <form class="" action="/users/signin" method="post">
-  Username: <input type="text" name='username' id='username' value="<%= params[:username] %>"><br>
-  Password: <input type="text" name='password' id='password' value="<%= params[:password] %>"><br>
+  <label for="username">Username: </label>
+  <input type="text" name='username' id='username' value="<%= params[:username] %>"><br>
+  <label for="password">Password: </label>
+  <input type="text" name='password' id='password' value="<%= params[:password] %>"><br>
   <button type="submit" name="signin">Sign In</button><br>
 </form>
