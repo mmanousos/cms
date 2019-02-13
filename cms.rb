@@ -98,12 +98,21 @@ get '/users/signin' do
   erb :sign_in
 end
 
+def valid_credentials?(username, password)
+  credentials = load_user_credentials
+  if credentials.key?(username)
+    bcrypt_password = BCrypt::Password.new(credentials[username])
+    bcrypt_password == password
+  else
+    false
+  end
+end
+
 # sign in
 post '/users/signin' do
-  credentials = load_user_credentials
   username = params[:username].strip
   password = params[:password].strip
-  if credentials.key?(username) && credentials[username] == password
+  if valid_credentials?(username, password)
     session[:success] = 'Welcome!'
     session[:signed_in] = true
     session[:username] = username
