@@ -16,7 +16,6 @@ class CmsTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
-    @credentials = load_user_credentials
   end
 
   def teardown
@@ -193,22 +192,20 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'name="signin">Sign In</button>')
 
     post '/users/signin', username: 'admin', password: 'secret'
-    if @credentials.key?(session[:username]) && @credentials[session[:username]] == session[:password]
-      assert_equal(302, last_response.status)
-      assert_equal('Welcome!', session[:success])
+    assert_equal(302, last_response.status)
+    assert_equal('Welcome!', session[:success])
 
-      get last_response['Location']
-      assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    get last_response['Location']
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
 
-      assert_includes(last_response.body, 'Signed in as')
-      assert_includes(last_response.body, 'Sign Out')
+    assert_includes(last_response.body, 'Signed in as')
+    assert_includes(last_response.body, 'Sign Out')
 
-      get '/'
-      assert_equal(200, last_response.status)
-      assert_includes(last_response.body, 'Signed in as')
-      refute_equal('Welcome!', session[:success])
-      assert_includes(last_response.body, 'Sign Out')
-    end
+    get '/'
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'Signed in as')
+    refute_equal('Welcome!', session[:success])
+    assert_includes(last_response.body, 'Sign Out')
   end
 
   def test_failed_sign_in
