@@ -3,6 +3,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/content_for'
 require 'tilt/erubis'
+require 'yaml'
 
 configure do
   enable :sessions
@@ -27,6 +28,15 @@ def data_path
   else
     File.expand_path('../data', __FILE__)
   end
+end
+
+def load_user_credentials
+  credentials_path = if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/users.yml', __FILE__)
+  else
+    File.expand_path('../users.yml', __FILE__)
+  end
+  YAML.load_file(credentials_path)
 end
 
 get '/' do
@@ -89,9 +99,10 @@ end
 
 # sign in
 post '/users/signin' do
+  credentials = load_user_credentials
   username = params[:username].strip
   password = params[:password].strip
-  if username.downcase == 'admin' && password.downcase == 'secret'
+  if credentials.key?(username) && credentials[username] == password
     session[:success] = 'Welcome!'
     session[:signed_in] = true
     session[:username] = username
