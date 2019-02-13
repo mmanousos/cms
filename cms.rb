@@ -9,12 +9,12 @@ require 'yaml'
 configure do
   enable :sessions
   set :session_secret, 'secret'
-  set :erb, :escape_html => true
+  set :erb, escape_html: true
 end
 
 helpers do
   # get flash message
-  def get_message
+  def read_message
     if session[:error]
       :error
     elsif session[:success]
@@ -33,10 +33,10 @@ end
 
 def load_user_credentials
   credentials_path = if ENV['RACK_ENV'] == 'test'
-    File.expand_path('../test/users.yml', __FILE__)
-  else
-    File.expand_path('../users.yml', __FILE__)
-  end
+                       File.expand_path('../test/users.yml', __FILE__)
+                     else
+                       File.expand_path('../users.yml', __FILE__)
+                     end
   YAML.load_file(credentials_path)
 end
 
@@ -70,10 +70,9 @@ def signed_in?
 end
 
 def verify_signed_in
-  unless signed_in?
-    session[:error] = 'You must be signed in to do that.'
-    redirect '/'
-  end
+  return if signed_in?
+  session[:error] = 'You must be signed in to do that.'
+  redirect '/'
 end
 
 # display form to create new document
@@ -82,8 +81,8 @@ get '/new' do
   erb :new_file, layout: :layout
 end
 
-def create_document(name, content = "")
-  File.open(File.join(data_path, name), "w") do |file|
+def create_document(name, content = '')
+  File.open(File.join(data_path, name), 'w') do |file|
     file.write(content)
   end
 end
@@ -141,7 +140,8 @@ post '/create' do
     status 422
     erb :new_file
   elsif !valid_extension?(doc_name)
-    session[:error] = 'Please include an extension for your file (use ".md" or ".txt").'
+    session[:error] = 'Please include an extension for your file ' /
+                      '(use ".md" or ".txt").'
     status 422
     erb :new_file
   else

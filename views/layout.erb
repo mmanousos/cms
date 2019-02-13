@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/stylesheets/cms.css" type="text/css" />
   </head>
   <body>
-    <% message = get_message %>
+    <% message = read_message %>
     <% if message %>
       <div class="message">
         <p><%= session.delete(message) %></p>
