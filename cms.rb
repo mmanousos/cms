@@ -161,6 +161,16 @@ post '/create' do
   end
 end
 
+# duplicate a document
+post '/:file_name/duplicate' do
+  verify_signed_in
+  doc_name = params[:file_name]
+  name, extension = doc_name.split('.')
+  content = File.read(File.join(data_path, doc_name))
+  create_document(name + '_copy.' + extension, content)
+  redirect '/'
+end
+
 # delete a document
 post '/:file_name/delete' do
   verify_signed_in
