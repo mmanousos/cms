@@ -77,7 +77,7 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, "<li>natural to read</li>\n<li>easy to write</li>")
   end
 
-  def test_edit
+  def test_view_edit
     create_document('about.md')
 
     get '/about.md/edit', {}, admin_session
@@ -88,7 +88,7 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, "button")
   end
 
-  def test_edit_not_signed_in
+  def test_view_edit_not_signed_in
     get '/about.md/edit'
     assert_equal(302, last_response.status)
     assert_equal('You must be signed in to do that.', session[:error])
@@ -159,6 +159,24 @@ class CmsTest < Minitest::Test
     post '/create', {file_name: '   '}
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
+  end
+
+  def test_duplicate
+    create_document('to_duplicate.md')
+    post '/to_duplicate.md/duplicate', {}, admin_session
+    assert_includes(session[:success], 'Duplication successful')
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'to_duplicate_copy.md')
+  end
+
+  def test_duplicate_not_signed_in
+    create_document('to_duplicate.md')
+    post '/to_duplicate.md/duplicate'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
   end
 
   def test_delete

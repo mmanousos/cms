@@ -167,7 +167,9 @@ post '/:file_name/duplicate' do
   doc_name = params[:file_name]
   name, extension = doc_name.split('.')
   content = File.read(File.join(data_path, doc_name))
-  create_document(name + '_copy.' + extension, content)
+  duplicate_name = name + '_copy.' + extension
+  create_document(duplicate_name, content)
+  session[:success] = "Duplication successful: #{duplicate_name} created."
   redirect '/'
 end
 
