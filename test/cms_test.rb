@@ -161,6 +161,49 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'A name is required.')
   end
 
+  def test_post_new_doc_already_exists
+    create_document('copy.txt')
+    post '/create', {file_name: 'copy.txt'}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'That file already exists.')
+  end
+
+  def test_post_rename
+    create_document('copy.txt')
+    post '/copy.txt/rename', {rename: 'copy1.txt'}, admin_session
+    assert_equal('copy.txt was renamed to copy1.txt.', session[:success])
+    assert_equal(302, last_response.status)
+
+    get last_response['Location']
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'copy1.txt</a>')
+    refute_includes(last_response.body, 'copy.txt</a>')
+  end
+
+  def test_post_rename_invalid_doc_name
+    create_document('copy.txt')
+    post '/copy.txt/rename', {rename: 'test'}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Please include a valid extension')
+
+    post '/copy.txt/rename', {rename: '   '}
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'A name is required.')
+  end
+
+  def test_post_rename_already_exists
+    create_document('copy.txt')
+    post '/copy.txt/rename', {rename: 'copy.txt'}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'That file already exists.')
+  end
+
+  def test_post_rename_not_signed_in
+    post '/:file_name/rename'
+    assert_equal(302, last_response.status)
+    assert_equal('You must be signed in to do that.', session[:error])
+  end
+
   def test_duplicate
     create_document('to_duplicate.md')
     post '/to_duplicate.md/duplicate', {}, admin_session
