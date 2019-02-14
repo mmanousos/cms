@@ -1,14 +1,14 @@
 <ul>
   <% @files.each do |file_name| %>
     <li>
-      <a href="/<%= file_name %>"><%= file_name %></a>
-      <a href="/<%= file_name %>/edit"><button id='edit' type='button'>edit</button></a>
-      <form class="inline" action="/<%= file_name %>/duplicate" method="post">
-        <button type="submit" id='duplicate' name="duplicate">duplicate</button>
+      <a href='/<%= file_name %>'><%= file_name %></a>
+      <a href='/<%= file_name %>/edit'><button id='edit' type='button'>edit</button></a>
+      <form class='inline' action='/<%= file_name %>/duplicate' method='post'>
+        <button type='submit' id='duplicate' name='duplicate'>duplicate</button>
       </form>
-      <a href="/<%= file_name %>/rename"><button id='rename' type="rename">rename</button></a>
-      <form class="inline" action="/<%= file_name %>/delete" method="post">
-        <button id='delete' type="submit" name="delete">delete</button>
+      <a href='/<%= file_name %>/rename'><button id='rename' type='rename'>rename</button></a>
+      <form class='inline' action='/<%= file_name %>/delete' method='post'>
+        <button id='delete' type='submit' name='delete'>delete</button>
       </form>
     </li>
   <% end %>
@@ -17,10 +17,10 @@
 <p><a href='/new'><button id='new' type='button' name='new_doc'>New Document</button></a></p>
 
 <% if session[:signed_in] %>
-  <form class="inline italic" action="/users/signout" method="post">
+  <form class='inline italic' action='/users/signout' method='post'>
     Signed in as <%= session[:username] %>.
-    <button type="submit" name="sign_out">Sign Out</button>
+    <button type='submit' id='sign_out' name='sign_out'>Sign Out</button>
   </form>
 <% else %>
-  <a href="/users/signin"><button type="button" class='sign_in'>Sign In</button></a>
+  <a href='/users/signin'><button type='button' id='sign_in'>Sign In</button></a>
 <% end %>

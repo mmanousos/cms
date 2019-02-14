@@ -43,7 +43,15 @@ body {
   line-height: 2;
 }
 
+#sign_out,
+#sign_in {
+  border-color: rgb(241, 43, 23);
+  background-color: rgb(249, 249, 249);
+  line-height: 3;
+  width: 80px;
+}
+
 button {
-  border-radius: 10px;
+  border-radius: 15px;
   line-height: 1.5;
 }
