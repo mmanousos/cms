@@ -150,10 +150,10 @@ post '/create' do
                       "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422
     erb :new_file
-  elsif File.file?(File.join(data_path, new_name))
+  elsif File.file?(File.join(data_path, doc_name))
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
-    erb :new_file  
+    erb :new_file
   else
     create_document(doc_name)
     session[:success] = "#{doc_name} was created."
