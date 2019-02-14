@@ -55,14 +55,10 @@ end
 
 def load_file_content(path)
   content = File.read(path)
-  case File.extname(path)
-  when '.txt'
+  if File.extname(path) == '.txt'
     headers['Content-Type'] = 'text/plain'
     content
-  when '.md'
-    headers['Content-Type'] = 'text/html'
-    erb render_markdown(content)
-  when '.doc'
+  elsif File.extname(path) == '.md' || File.extname(path) == '.doc'
     headers['Content-Type'] = 'text/html'
     erb render_markdown(content)
   end
@@ -90,9 +86,9 @@ def create_document(name, content = '')
   end
 end
 
-TEXT_EXTENSIONS = %w(.md .txt .doc)
-IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png)
-OTHER_EXTENSIONS = %w(.pdf)
+TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
+IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png).freeze
+OTHER_EXTENSIONS = %w(.pdf).freeze
 
 # display sign in form
 get '/users/signin' do
@@ -134,7 +130,7 @@ post '/users/signout' do
 end
 
 def valid_text_extension?(name)
-  TEXT_EXTENSIONS.include?(File.extname(name.downcase))
+  TEXT_EXTENSIONS.include?(File.extname(name))
 end
 
 def simplify_file_name(name)
@@ -150,13 +146,48 @@ post '/create' do
     status 422
     erb :new_file
   elsif !valid_text_extension?(doc_name)
-    session[:error] = "Please include an extension for your file " +
+    session[:error] = 'Please include a valid extension for your file ' \
                       "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422
     erb :new_file
+  elsif File.file?(File.join(data_path, new_name))
+    session[:error] = 'That file already exists. Please choose another name.'
+    status 422
+    erb :new_file  
   else
     create_document(doc_name)
     session[:success] = "#{doc_name} was created."
+    redirect '/'
+  end
+end
+
+# display rename form
+get '/:file_name/rename' do
+  verify_signed_in
+  erb :rename
+end
+
+# validate new name and rename document
+post '/:file_name/rename' do
+  verify_signed_in
+  old_name = params[:file_name]
+  new_name = simplify_file_name(params[:rename])
+  if new_name.empty?
+    session[:error] = 'A name is required.'
+    status 422
+    erb :rename
+  elsif !valid_text_extension?(new_name)
+    session[:error] = 'Please include a valid extension for your file ' \
+                      "(use #{TEXT_EXTENSIONS.join(', ')})."
+    status 422
+    erb :rename
+  elsif File.file?(File.join(data_path, new_name))
+    session[:error] = 'That file already exists. Please choose another name.'
+    status 422
+    erb :rename
+  else
+    File.rename(File.join(data_path, old_name), File.join(data_path, new_name))
+    session[:success] = "#{old_name} was renamed to #{new_name}."
     redirect '/'
   end
 end

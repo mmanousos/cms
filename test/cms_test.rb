@@ -154,7 +154,7 @@ class CmsTest < Minitest::Test
   def test_post_invalid_doc_name
     post '/create', {file_name: 'test'}, admin_session
     assert_equal(422, last_response.status)
-    assert_includes(last_response.body, 'Please include an extension')
+    assert_includes(last_response.body, 'Please include a valid extension')
 
     post '/create', {file_name: '   '}
     assert_equal(422, last_response.status)
