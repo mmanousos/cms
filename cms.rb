@@ -62,6 +62,9 @@ def load_file_content(path)
   when '.md'
     headers['Content-Type'] = 'text/html'
     erb render_markdown(content)
+  when '.doc'
+    headers['Content-Type'] = 'text/html'
+    erb render_markdown(content)
   end
 end
 
@@ -87,10 +90,9 @@ def create_document(name, content = '')
   end
 end
 
-def valid_extension?(name)
-  extension = File.extname(name)
-  extension == '.md' || extension == '.txt'
-end
+TEXT_EXTENSIONS = %w(.md .txt .doc)
+IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png)
+OTHER_EXTENSIONS = %w(.pdf)
 
 # display sign in form
 get '/users/signin' do
@@ -131,17 +133,25 @@ post '/users/signout' do
   redirect '/'
 end
 
+def valid_text_extension?(name)
+  TEXT_EXTENSIONS.include?(File.extname(name.downcase))
+end
+
+def simplify_file_name(name)
+  name.downcase.tr(' ', '').strip
+end
+
 # validate and create new document
 post '/create' do
   verify_signed_in
-  doc_name = params[:file_name].strip
+  doc_name = simplify_file_name(params[:file_name])
   if doc_name.empty?
     session[:error] = 'A name is required.'
     status 422
     erb :new_file
-  elsif !valid_extension?(doc_name)
-    session[:error] = 'Please include an extension for your file ' /
-                      '(use ".md" or ".txt").'
+  elsif !valid_text_extension?(doc_name)
+    session[:error] = "Please include an extension for your file " +
+                      "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422
     erb :new_file
   else
