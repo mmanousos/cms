@@ -45,10 +45,18 @@ body {
 
 #sign_out,
 #sign_in {
-  border-color: rgb(241, 43, 23);
-  background-color: rgb(249, 249, 249);
   line-height: 3;
   width: 80px;
+}
+
+#sign_in {
+  border-color: rgb(67, 157, 58);
+  background-color: rgb(86, 205, 74);
+}
+
+#sign_out {
+  border-color: rgb(241, 43, 23);
+  background-color: rgb(249, 249, 249);
 }
 
 button {
