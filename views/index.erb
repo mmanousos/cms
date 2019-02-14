@@ -2,19 +2,19 @@
   <% @files.each do |file_name| %>
     <li>
       <a href="/<%= file_name %>"><%= file_name %></a>
-      <a href="/<%= file_name %>/edit"><button type='button'>edit</button></a>
+      <a href="/<%= file_name %>/edit"><button id='edit' type='button'>edit</button></a>
       <form class="inline" action="/<%= file_name %>/duplicate" method="post">
-        <button type="submit" name="duplicate">duplicate</button>
+        <button type="submit" id='duplicate' name="duplicate">duplicate</button>
       </form>
-      <a href="/<%= file_name %>/rename"><button type="rename">rename</button></a>
+      <a href="/<%= file_name %>/rename"><button id='rename' type="rename">rename</button></a>
       <form class="inline" action="/<%= file_name %>/delete" method="post">
-        <button type="submit" name="delete">delete</button>
+        <button id='delete' type="submit" name="delete">delete</button>
       </form>
     </li>
   <% end %>
 </ul>
 
-<p><a href='/new'>New Document</a></p>
+<p><a href='/new'><button id='new' type='button' name='new_doc'>New Document</button></a></p>
 
 <% if session[:signed_in] %>
   <form class="inline italic" action="/users/signout" method="post">

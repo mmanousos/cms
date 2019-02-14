@@ -20,3 +20,30 @@ body {
 .italic {
   font-style: italic;
 }
+
+#edit {
+  background-color: rgb(32, 110, 214);
+}
+
+#duplicate {
+  background-color: rgb(67, 157, 58);
+}
+
+#rename {
+  background-color: rgb(244, 242, 41);
+}
+
+#delete {
+  background-color: rgb(235, 49, 16);
+}
+
+#new {
+  border-color: rgb(67, 157, 58);
+  background-color: rgb(86, 205, 74);
+  line-height: 2;
+}
+
+button {
+  border-radius: 10px;
+  line-height: 1.5;
+}
