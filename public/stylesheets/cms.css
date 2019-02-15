@@ -3,6 +3,14 @@ body {
   margin: 1%;
 }
 
+.italic {
+  font-style: italic;
+}
+
+/* ------------- */
+/*   MESSAGES    */
+/* ------------- */
+
 .message {
   padding: 5px;
 }
@@ -20,29 +28,73 @@ body {
   margin: 5px;
 }
 
+/* --------------- */
+/*   POSITIONING   */
+/* --------------- */
+
 .inline {
   display: inline;
 }
 
-.italic {
-  font-style: italic;
+/* ------------------- */
+/*   LINKS & BUTTONS   */
+/* ------------------- */
+
+/* a:link - a normal, unvisited link
+a:visited - a link the user has visited
+a:hover - a link when the user mouses over it
+a:active - a link the moment it is clicked */
+
+/* a:hover MUST come after a:link and a:visited
+a:active MUST come after a:hover */
+
+a:visited {
+  color: purple;
+}
+
+a:link,
+a:hover,
+a:active {
+  color: #6569E8;
+}
+
+button {
+  border-radius: 15px;
+  line-height: 1.5;
 }
 
 #edit,
 #duplicate,
 #rename {
-  /* background-color: rgb(32, 110, 214); */
+  color: #6569E8;
+}
+
+#edit:hover,
+#duplicate:hover,
+#rename:hover {
+  color: #fff;
   background-color: #6569E8;
 }
 
 #delete {
+  color: #FF4141;
+}
+
+#delete:hover {
   background-color: #FF4141;
+  color: #fff;
 }
 
 #new {
   border-color: #34FF86;
-  background-color: #34FF86;
+  color: #27c667;
   line-height: 2;
+}
+
+#new:hover {
+  border-color: #34FF86;
+  background-color: #27c667;
+  color: #fff;
 }
 
 #sign_out,
@@ -56,12 +108,21 @@ body {
   background-color: #34FF86;
 }
 
+a:hover #sign_in,
+#sign_in:hover {
+  border-color: #34FF86;
+  background-color: #9dc1ab;
+  color: #34FF86;
+}
+
 #sign_out {
   border-color: rgb(241, 43, 23);
+  color: rgb(241, 43, 23);
   background-color: rgb(249, 249, 249);
 }
 
-button {
-  border-radius: 15px;
-  line-height: 1.5;
+#sign_out:hover {
+  border-color: rgb(241, 43, 23);
+  background-color: rgb(241, 43, 23);
+  color: rgb(249, 249, 249);
 }
