@@ -23,6 +23,10 @@ helpers do
   end
 end
 
+TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
+IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png).freeze
+OTHER_EXTENSIONS = %w(.pdf).freeze
+
 def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
@@ -61,6 +65,10 @@ def load_file_content(path)
   elsif File.extname(path) == '.md' || File.extname(path) == '.doc'
     headers['Content-Type'] = 'text/html'
     erb render_markdown(content)
+  elsif IMAGE_EXTENSIONS.include?(File.extname(path)) ||
+    OTHER_EXTENSIONS == (File.extname(path))
+    headers['Content-Type'] = 'text/html'
+    File.open(path)
   end
 end
 
@@ -85,10 +93,6 @@ def create_document(name, content = '')
     file.write(content)
   end
 end
-
-TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
-IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png).freeze
-OTHER_EXTENSIONS = %w(.pdf).freeze
 
 # display sign in form
 get '/users/signin' do
@@ -129,17 +133,26 @@ post '/users/signout' do
   redirect '/'
 end
 
+# display upload form
 get '/upload' do
   verify_signed_in
   erb :upload
 end
 
+# upload file
 post '/upload' do
   verify_signed_in
-  file_name = params[:fileupload]
-  # add to data folder
-  # confirm file uploaded
-  # redirect '/'
+  file_details = params[:fileupload]
+  if file_details.nil?
+    session[:error] = 'Please select a file to upload.'
+    erb :upload
+  else
+    file_name = file_details[:filename]
+    file = file_details[:tempfile]
+    FileUtils.mv(file, File.join(data_path, file_name))
+    session[:success] = "#{file_name} was uploaded."
+    redirect '/'
+  end
 end
 
 def valid_text_extension?(name)
