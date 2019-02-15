@@ -17,7 +17,10 @@
 </ul>
 
 <% if session[:signed_in] %>
-  <p><a href='/new'><button id='new' type='button' name='new_doc'>New Document</button></a></p>
+  <p>
+    <a href='/new'><button id='new' type='button' name='new_doc'>New Document</button></a>
+    <a href='/upload'><button id='upload' type='button' name='upload'>Upload File</button></a>
+  </p>
   <form class='inline italic' action='/users/signout' method='post'>
     Signed in as <%= session[:username] %>.
     <button type='submit' id='sign_out' name='sign_out'>Sign Out</button>

@@ -129,6 +129,19 @@ post '/users/signout' do
   redirect '/'
 end
 
+get '/upload' do
+  verify_signed_in
+  erb :upload
+end
+
+post '/upload' do
+  verify_signed_in
+  file_name = params[:fileupload]
+  # add to data folder
+  # confirm file uploaded
+  # redirect '/'
+end
+
 def valid_text_extension?(name)
   TEXT_EXTENSIONS.include?(File.extname(name))
 end

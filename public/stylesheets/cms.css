@@ -85,13 +85,15 @@ button {
   color: #fff;
 }
 
-#new {
+#new,
+#upload {
   border-color: #34FF86;
   color: #27c667;
   line-height: 2;
 }
 
-#new:hover {
+#new:hover,
+#upload:hover {
   border-color: #34FF86;
   background-color: #27c667;
   color: #fff;
@@ -103,13 +105,15 @@ button {
   width: 80px;
 }
 
-#sign_in {
+#sign_in,
+#create {
   border-color: #34FF86;
   background-color: #34FF86;
 }
 
 a:hover #sign_in,
-#sign_in:hover {
+#sign_in:hover,
+#create:hover {
   border-color: #34FF86;
   background-color: #9dc1ab;
   color: #34FF86;
