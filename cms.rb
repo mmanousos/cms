@@ -139,6 +139,12 @@ get '/upload' do
   erb :upload
 end
 
+def downcase_extension!(name)
+  file, extension = name.split('.')
+  extension = extension.tr('A-Z', 'a-z')
+  "#{file}.#{extension}"
+end
+
 # upload file
 post '/upload' do
   verify_signed_in
@@ -147,7 +153,7 @@ post '/upload' do
     session[:error] = 'Please select a file to upload.'
     erb :upload
   else
-    file_name = file_details[:filename]
+    file_name = downcase_extension!(file_details[:filename])
     file = file_details[:tempfile]
     FileUtils.mv(file, File.join(data_path, file_name))
     session[:success] = "#{file_name} was uploaded."
