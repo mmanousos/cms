@@ -126,7 +126,7 @@ class CmsTest < Minitest::Test
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, "<form action='/create' method='post'>")
     assert_includes(last_response.body, "<input type='text' name='file_name'")
-    assert_includes(last_response.body, "<button type='submit'>")
+    assert_includes(last_response.body, "<button id='create' type='submit'>")
   end
 
   def test_new_doc_form_not_signed_in

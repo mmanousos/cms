@@ -172,7 +172,7 @@ end
 # validate and create new document
 post '/create' do
   verify_signed_in
-  doc_name = simplify_file_name!(params[:file_name])
+  doc_name = params[:file_name].strip
   if doc_name.empty?
     session[:error] = 'A name is required.'
     status 422
@@ -182,7 +182,7 @@ post '/create' do
                       "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422
     erb :new_file
-  elsif File.file?(File.join(data_path, doc_name))
+  elsif File.file?(File.join(data_path, simplify_file_name!(doc_name)))
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
     erb :new_file
@@ -203,7 +203,7 @@ end
 post '/:file_name/rename' do
   verify_signed_in
   old_name = params[:file_name]
-  new_name = simplify_file_name!(params[:rename])
+  new_name = params[:rename].strip
   if new_name.empty?
     session[:error] = 'A name is required.'
     status 422
@@ -218,6 +218,7 @@ post '/:file_name/rename' do
     status 422
     erb :rename
   else
+    new_name = simplify_file_name!(new_name)
     File.rename(File.join(data_path, old_name), File.join(data_path, new_name))
     session[:success] = "#{old_name} was renamed to #{new_name}."
     redirect '/'
