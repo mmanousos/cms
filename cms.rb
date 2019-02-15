@@ -68,7 +68,7 @@ def load_file_content(path)
   elsif IMAGE_EXTENSIONS.include?(File.extname(path)) ||
     OTHER_EXTENSIONS == (File.extname(path))
     headers['Content-Type'] = 'text/html'
-    File.open(path)
+
   end
 end
 
@@ -139,9 +139,10 @@ get '/upload' do
   erb :upload
 end
 
-def downcase_extension!(name)
+def simplify_file_name!(name)
   file, extension = name.split('.')
   extension = extension.tr('A-Z', 'a-z')
+  file.tr(' ', '').strip
   "#{file}.#{extension}"
 end
 
@@ -153,7 +154,7 @@ post '/upload' do
     session[:error] = 'Please select a file to upload.'
     erb :upload
   else
-    file_name = downcase_extension!(file_details[:filename])
+    file_name = simplify_file_name!(file_details[:filename])
     file = file_details[:tempfile]
     FileUtils.mv(file, File.join(data_path, file_name))
     session[:success] = "#{file_name} was uploaded."
@@ -165,14 +166,10 @@ def valid_text_extension?(name)
   TEXT_EXTENSIONS.include?(File.extname(name))
 end
 
-def simplify_file_name(name)
-  name.downcase.tr(' ', '').strip
-end
-
 # validate and create new document
 post '/create' do
   verify_signed_in
-  doc_name = simplify_file_name(params[:file_name])
+  doc_name = simplify_file_name!(params[:file_name])
   if doc_name.empty?
     session[:error] = 'A name is required.'
     status 422
