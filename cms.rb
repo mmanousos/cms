@@ -24,7 +24,7 @@ helpers do
 end
 
 TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
-IMAGE_EXTENSIONS = %w(.jpg .jpeg .svg .gif .png).freeze
+IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
 OTHER_EXTENSIONS = %w(.pdf).freeze
 
 def data_path
@@ -59,16 +59,19 @@ end
 
 def load_file_content(path)
   content = File.read(path)
+  extension = File.extname(path)
   if File.extname(path) == '.txt'
     headers['Content-Type'] = 'text/plain'
     content
   elsif File.extname(path) == '.md' || File.extname(path) == '.doc'
     headers['Content-Type'] = 'text/html'
     erb render_markdown(content)
-  elsif IMAGE_EXTENSIONS.include?(File.extname(path)) ||
-    OTHER_EXTENSIONS == (File.extname(path))
-    headers['Content-Type'] = 'text/html'
-
+  elsif IMAGE_EXTENSIONS.include?(extension)
+    headers['Content-Type'] = 'image/jpg'
+    content
+  elsif OTHER_EXTENSIONS == extension
+    headers['Content-Type'] = 'application/pdf'
+    content
   end
 end
 
@@ -200,7 +203,7 @@ end
 post '/:file_name/rename' do
   verify_signed_in
   old_name = params[:file_name]
-  new_name = simplify_file_name(params[:rename])
+  new_name = simplify_file_name!(params[:rename])
   if new_name.empty?
     session[:error] = 'A name is required.'
     status 422
