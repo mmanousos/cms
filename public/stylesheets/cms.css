@@ -8,11 +8,11 @@ body {
 }
 
 .error {
-  background-color: rgb(249, 160, 148);
+  background-color: #FFA098;
 }
 
 .success {
-  background-color: rgb(148, 249, 167);
+  background-color: #94f9a7;
 }
 
 .message p {
@@ -28,25 +28,20 @@ body {
   font-style: italic;
 }
 
-#edit {
-  background-color: rgb(32, 110, 214);
-}
-
-#duplicate {
-  background-color: rgb(67, 157, 58);
-}
-
+#edit,
+#duplicate,
 #rename {
-  background-color: rgb(244, 242, 41);
+  /* background-color: rgb(32, 110, 214); */
+  background-color: #6569E8;
 }
 
 #delete {
-  background-color: rgb(235, 49, 16);
+  background-color: #FF4141;
 }
 
 #new {
-  border-color: rgb(67, 157, 58);
-  background-color: rgb(86, 205, 74);
+  border-color: #34FF86;
+  background-color: #34FF86;
   line-height: 2;
 }
 
@@ -57,8 +52,8 @@ body {
 }
 
 #sign_in {
-  border-color: rgb(67, 157, 58);
-  background-color: rgb(86, 205, 74);
+  border-color: #34FF86;
+  background-color: #34FF86;
 }
 
 #sign_out {
