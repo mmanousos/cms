@@ -4,8 +4,15 @@ body {
 }
 
 .message {
-  background-color: rgb(249, 245, 148);
   padding: 5px;
+}
+
+.error {
+  background-color: rgb(249, 160, 148);
+}
+
+.success {
+  background-color: rgb(148, 249, 167);
 }
 
 .message p {

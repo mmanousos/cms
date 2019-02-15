@@ -7,8 +7,12 @@
   </head>
   <body>
     <% message = read_message %>
-    <% if message %>
-      <div class="message">
+    <% if message == :error %>
+      <div class='message error'>
+        <p><%= session.delete(message) %></p>
+      </div>
+    <% elsif message == :success %>
+      <div class='message success'>
         <p><%= session.delete(message) %></p>
       </div>
     <% end %>

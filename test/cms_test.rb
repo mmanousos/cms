@@ -250,7 +250,7 @@ class CmsTest < Minitest::Test
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, "id='username'")
     assert_includes(last_response.body, "id='password'")
-    assert_includes(last_response.body, 'name="signin">Sign In</button>')
+    assert_includes(last_response.body, "name='signin'>Sign In</button>")
 
     post '/users/signin', username: 'admin', password: 'secret'
     assert_equal(302, last_response.status)
