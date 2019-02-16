@@ -3,11 +3,11 @@
     <li>
       <a href='/<%= file_name %>'><%= file_name %></a>
       <% if session[:signed_in] %>
-        <a href='/<%= file_name %>/edit'><button id='edit' type='button'>edit</button></a>
+        <a href='/<%= file_name %>/edit'><button class='edit' type='button'>edit</button></a>
         <form class='inline' action='/<%= file_name %>/duplicate' method='post'>
           <button type='submit' id='duplicate' name='duplicate'>duplicate</button>
         </form>
-        <a href='/<%= file_name %>/rename'><button id='rename' type='rename'>rename</button></a>
+        <a href='/<%= file_name %>/rename'><button class='rename' type='rename'>rename</button></a>
         <form class='inline' action='/<%= file_name %>/delete' method='post'>
           <button id='delete' type='submit' name='delete'>delete</button>
         </form>
@@ -18,8 +18,8 @@
 
 <% if session[:signed_in] %>
   <p>
-    <a href='/new'><button id='new' type='button' name='new_doc'>New Document</button></a>
-    <a href='/upload'><button id='upload' type='button' name='upload'>Upload File</button></a>
+    <a href='/new'><button class='new' type='button' name='new_doc'>New Document</button></a>
+    <a href='/upload'><button class='upload' type='button' name='upload'>Upload File</button></a>
   </p>
   <form class='inline italic' action='/users/signout' method='post'>
     Signed in as <%= session[:username] %>.

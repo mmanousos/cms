@@ -63,17 +63,21 @@ button {
   line-height: 1.5;
 }
 
-#edit,
+.edit,
 #duplicate,
-#rename {
+.rename {
   color: #6569E8;
 }
 
-#edit:hover,
+.edit:hover,
 #duplicate:hover,
-#rename:hover {
+.rename:hover {
   color: #fff;
   background-color: #6569E8;
+}
+
+.cancel {
+  margin-top: 10px;
 }
 
 #delete,
@@ -87,15 +91,15 @@ button {
   color: #fff;
 }
 
-#new,
-#upload {
+.new,
+.upload {
   border-color: #34FF86;
   color: #27c667;
   line-height: 2;
 }
 
-#new:hover,
-#upload:hover {
+.new:hover,
+.upload:hover {
   border-color: #34FF86;
   background-color: #27c667;
   color: #fff;
@@ -107,15 +111,13 @@ button {
   width: 80px;
 }
 
-#sign_in,
-#create {
+#sign_in {
   border-color: #34FF86;
   background-color: #34FF86;
 }
 
 a:hover #sign_in,
-#sign_in:hover,
-#create:hover {
+#sign_in:hover {
   border-color: #34FF86;
   background-color: #9dc1ab;
   color: #34FF86;
