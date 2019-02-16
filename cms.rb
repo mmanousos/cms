@@ -13,7 +13,6 @@ configure do
 end
 
 helpers do
-  # get flash message
   def read_message
     if session[:error]
       :error
@@ -24,6 +23,10 @@ helpers do
 
   def split_name(file_name)
     file_name.split('.')
+  end
+
+  def text_extension?(file_name)
+    TEXT_EXTENSIONS.include?(File.extname(file_name))
   end
 end
 
@@ -147,7 +150,7 @@ get '/upload' do
 end
 
 def simplify_file_name!(name)
-  file, extension = name.split('.')
+  file, extension = split_name(name)
   extension = extension.tr('A-Z', 'a-z')
   file.tr(' ', '').strip
   "#{file}.#{extension}"
@@ -208,13 +211,13 @@ end
 post '/:file_name/rename' do
   verify_signed_in
   old_name = params[:file_name]
-  extension = params[:file_name].split('.').last
+  extension = split_name(params[:file_name]).last
   new_name = params[:rename].strip
   if new_name.empty?
     session[:error] = 'A name is required.'
     status 422
     erb :rename
-elsif File.file?(File.join(data_path, ("#{new_name}.#{extension}")))
+  elsif File.file?(File.join(data_path, "#{new_name}.#{extension}"))
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
     erb :rename
@@ -230,7 +233,7 @@ end
 post '/:file_name/duplicate' do
   verify_signed_in
   doc_name = params[:file_name]
-  name, extension = doc_name.split('.')
+  name, extension = split_name(doc_name)
   content = File.read(File.join(data_path, doc_name))
   duplicate_name = name + '_copy.' + extension
   create_document(duplicate_name, content)

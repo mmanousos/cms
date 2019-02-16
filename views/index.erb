@@ -3,7 +3,9 @@
     <li>
       <a href='/<%= file_name %>'><%= file_name %></a>
       <% if session[:signed_in] %>
-        <a href='/<%= file_name %>/edit'><button class='edit' type='button'>edit</button></a>
+        <% if text_extension?(file_name) %>
+          <a href='/<%= file_name %>/edit'><button class='edit' type='button'>edit</button></a>
+        <% end %>
         <form class='inline' action='/<%= file_name %>/duplicate' method='post'>
           <button type='submit' id='duplicate' name='duplicate'>duplicate</button>
         </form>
