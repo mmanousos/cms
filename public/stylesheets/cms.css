@@ -76,11 +76,13 @@ button {
   background-color: #6569E8;
 }
 
-#delete {
+#delete,
+.cancel {
   color: #FF4141;
 }
 
-#delete:hover {
+#delete:hover,
+.cancel:hover {
   background-color: #FF4141;
   color: #fff;
 }
