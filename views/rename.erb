@@ -1,5 +1,7 @@
+<% name, extension = split_name(params[:file_name]) %>
 <form action='/<%= params[:file_name] %>/rename' method='post'>
   <label for='new_name'><h3>Rename <%= params[:file_name] %>:</h3></label>
-  <input type='text' name='rename' id='rename' size='50' maxlength='100' value="<%= params[:rename] %>" placeholder='New file name with extension' >
+  <input type='text' name='rename' id='rename' size='50' maxlength='100' value="<%= params[:rename] %>" placeholder='New file name' >
+  .<%= extension %>
   <p><button type='submit'>rename</button></p>
 </form>

@@ -156,7 +156,7 @@ class CmsTest < Minitest::Test
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Please include a valid extension')
 
-    post '/create', {file_name: '   '}
+    post '/create', {file_name: '   '}, admin_session
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
@@ -182,18 +182,15 @@ class CmsTest < Minitest::Test
 
   def test_post_rename_invalid_doc_name
     create_document('copy.txt')
-    post '/copy.txt/rename', {rename: 'test'}, admin_session
-    assert_equal(422, last_response.status)
-    assert_includes(last_response.body, 'Please include a valid extension')
 
-    post '/copy.txt/rename', {rename: '   '}
+    post '/copy.txt/rename', {rename: '   '}, admin_session
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'A name is required.')
   end
 
   def test_post_rename_already_exists
     create_document('copy.txt')
-    post '/copy.txt/rename', {rename: 'copy.txt'}, admin_session
+    post '/copy.txt/rename', {rename: 'copy'}, admin_session
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end

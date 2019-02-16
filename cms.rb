@@ -21,6 +21,10 @@ helpers do
       :success
     end
   end
+
+  def split_name(file_name)
+    file_name.split('.')
+  end
 end
 
 TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
@@ -203,22 +207,18 @@ end
 post '/:file_name/rename' do
   verify_signed_in
   old_name = params[:file_name]
+  extension = params[:file_name].split('.').last
   new_name = params[:rename].strip
   if new_name.empty?
     session[:error] = 'A name is required.'
     status 422
     erb :rename
-  elsif !valid_text_extension?(new_name)
-    session[:error] = 'Please include a valid extension for your file ' \
-                      "(use #{TEXT_EXTENSIONS.join(', ')})."
-    status 422
-    erb :rename
-  elsif File.file?(File.join(data_path, new_name))
+elsif File.file?(File.join(data_path, ("#{new_name}.#{extension}")))
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
     erb :rename
   else
-    new_name = simplify_file_name!(new_name)
+    new_name = simplify_file_name!("#{new_name}.#{extension}")
     File.rename(File.join(data_path, old_name), File.join(data_path, new_name))
     session[:success] = "#{old_name} was renamed to #{new_name}."
     redirect '/'
