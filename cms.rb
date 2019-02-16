@@ -158,6 +158,7 @@ post '/upload' do
   verify_signed_in
   file_details = params[:fileupload]
   if file_details.nil?
+    status 422
     session[:error] = 'Please select a file to upload.'
     erb :upload
   else

@@ -293,4 +293,40 @@ class CmsTest < Minitest::Test
     refute_equal('You have been signed out.', session[:success])
     refute_includes(last_response.body, 'Signed in as')
   end
+
+  def test_display_upload_form
+    get '/upload', {}, admin_session
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'enctype="multipart/form-data"')
+  end
+
+  def test_display_upload_form_not_signed_in
+    get '/upload'
+    assert_equal('You must be signed in to do that.', session[:error])
+    assert_equal(302, last_response.status)
+  end
+
+  def test_upload
+    skip
+    # image = File.expand_path('../', 'panda.gif')
+    file = Rack::Test::UploadedFile.new('../panda.gif', "image/jpeg")
+
+    post '/upload', {fileupload: file}, admin_session
+    assert_equal('was uploaded.', session[:success])
+
+    get ['Location']
+    assert_includes(last_response.body, 'panda.gif') #filename
+  end
+
+  def test_upload_no_file
+    post '/upload', {}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Please select a file to upload.')
+  end
+
+  def test_upload_not_signed_in
+    post '/upload'
+    assert_equal('You must be signed in to do that.', session[:error])
+    assert_equal(302, last_response.status)
+  end
 end
