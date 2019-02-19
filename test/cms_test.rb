@@ -317,6 +317,16 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'panda.gif')
   end
 
+  def test_upload_duplicate_file
+    file_path = File.join(upload_path, 'panda.gif')
+    file = Rack::Test::UploadedFile.new(file_path, 'image/jpeg')
+
+    post '/upload', {fileupload: file}, admin_session
+    post '/upload', {fileupload: file}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'That file already exists.')
+  end
+
   def test_upload_no_file
     post '/upload', {}, admin_session
     assert_equal(422, last_response.status)

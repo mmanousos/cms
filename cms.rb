@@ -180,6 +180,10 @@ post '/upload' do
     session[:error] = 'That file type is unsupported. Please use only ' \
                       "#{UPLOAD_EXTENSIONS.join(', ')}."
     erb :upload
+  elsif File.file?(File.join(data_path, file_details[:filename]))
+    session[:error] = 'That file already exists.'
+    status 422
+    erb :upload
   else
     file_name = simplify_file_name!(file_details[:filename])
     file = file_details[:tempfile]
