@@ -6,6 +6,8 @@ require 'sinatra/content_for'
 require 'tilt/erubis'
 require 'yaml'
 
+include FileUtils
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -32,6 +34,7 @@ end
 
 TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
 IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
+UPLOAD_EXTENSIONS = %w(.md .txt .pdf .jpg .jpeg .gif .png).freeze
 
 def data_path
   if ENV['RACK_ENV'] == 'test'
@@ -41,7 +44,7 @@ def data_path
   end
 end
 
-def image_path
+def upload_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test', __FILE__)
   end
@@ -56,6 +59,11 @@ def load_user_credentials
   YAML.load_file(credentials_path)
 end
 
+def invalid_file_type?(possible_extensions, file_name)
+  !possible_extensions.include?(File.extname(file_name))
+end
+
+# load index
 get '/' do
   pattern = File.join(data_path, '*')
   @files = Dir.glob(pattern).map do |path|
@@ -157,7 +165,7 @@ end
 def simplify_file_name!(name)
   file, extension = split_name(name)
   extension = extension.tr('A-Z', 'a-z')
-  file = file.tr(' ', '').strip
+  file = file.gsub(/[\s'"]/, '').strip
   "#{file}.#{extension}"
 end
 
@@ -169,6 +177,11 @@ post '/upload' do
     status 422
     session[:error] = 'Please select a file to upload.'
     erb :upload
+  elsif invalid_file_type?(UPLOAD_EXTENSIONS, file_details[:filename])
+    status 415
+    session[:error] = 'That file type is unsupported. Please use only ' \
+                      "#{UPLOAD_EXTENSIONS.join(', ')}."
+    erb :upload
   else
     file_name = simplify_file_name!(file_details[:filename])
     file = file_details[:tempfile]
@@ -176,10 +189,6 @@ post '/upload' do
     session[:success] = "#{file_name} was uploaded."
     redirect '/'
   end
-end
-
-def valid_text_extension?(name)
-  TEXT_EXTENSIONS.include?(File.extname(name))
 end
 
 # validate and create new document
@@ -190,7 +199,7 @@ post '/create' do
     session[:error] = 'A name is required.'
     status 422
     erb :new_file
-  elsif !valid_text_extension?(doc_name)
+  elsif invalid_file_type?(TEXT_EXTENSIONS, doc_name)
     session[:error] = 'Please include a valid extension for your file ' \
                       "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422

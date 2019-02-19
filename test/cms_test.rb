@@ -26,19 +26,19 @@ class CmsTest < Minitest::Test
     last_request.env['rack.session']
   end
 
-  def create_document(name, content = "")
-    File.open(File.join(data_path, name), "w") do |file|
+  def create_document(name, content = '')
+    File.open(File.join(data_path, name), 'w') do |file|
       file.write(content)
     end
   end
 
   def admin_session
-    { "rack.session" => { username: "admin", signed_in: true } }
+    { 'rack.session' => { username: 'admin', signed_in: true } }
   end
 
   def test_index
-    create_document("about.md")
-    create_document("changes.txt")
+    create_document('about.md')
+    create_document('changes.txt')
 
     get '/'
     assert_equal(200, last_response.status)
@@ -48,11 +48,11 @@ class CmsTest < Minitest::Test
   end
 
   def test_document
-    create_document("history.txt", "1993 - Yukihiro Matsumoto dreams up Ruby.\n1995 - Ruby 0.95 released.")
+    create_document('history.txt', "1993 - Yukihiro Matsumoto dreams up Ruby.\n1995 - Ruby 0.95 released.")
 
     get '/history.txt'
     assert_equal(200, last_response.status)
-    assert_equal "text/plain", last_response["Content-Type"]
+    assert_equal 'text/plain', last_response['Content-Type']
     assert_includes(last_response.body, 'Yukihiro Matsumoto')
   end
 
@@ -73,7 +73,7 @@ class CmsTest < Minitest::Test
 
     get '/about.md'
     assert_equal(200, last_response.status)
-    assert_equal "text/html", last_response["Content-Type"]
+    assert_equal 'text/html', last_response['Content-Type']
     assert_includes(last_response.body, "<li>natural to read</li>\n<li>easy to write</li>")
   end
 
@@ -82,10 +82,10 @@ class CmsTest < Minitest::Test
 
     get '/about.md/edit', {}, admin_session
     assert_equal(200, last_response.status)
-    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes(last_response.body, "textarea")
-    assert_includes(last_response.body, "form")
-    assert_includes(last_response.body, "button")
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes(last_response.body, 'textarea')
+    assert_includes(last_response.body, 'form')
+    assert_includes(last_response.body, 'button')
   end
 
   def test_view_edit_not_signed_in
@@ -307,20 +307,29 @@ class CmsTest < Minitest::Test
   end
 
   def test_upload
-    file_path = File.join(image_path, 'panda.gif')
-    file = Rack::Test::UploadedFile.new(file_path, "image/jpeg")
+    file_path = File.join(upload_path, 'panda.gif')
+    file = Rack::Test::UploadedFile.new(file_path, 'image/jpeg')
 
     post '/upload', {fileupload: file}, admin_session
     assert_equal('panda.gif was uploaded.', session[:success])
 
     get last_response['Location']
-    assert_includes(last_response.body, 'panda.gif') #filename
+    assert_includes(last_response.body, 'panda.gif')
   end
 
   def test_upload_no_file
     post '/upload', {}, admin_session
     assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'Please select a file to upload.')
+  end
+
+  def test_upload_unsupported_file
+    file_path = File.join(upload_path, 'test.doc')
+    file = Rack::Test::UploadedFile.new(file_path, 'text/plain')
+
+    post '/upload', {fileupload: file}, admin_session
+    assert_equal(415, last_response.status)
+    assert_includes(last_response.body, 'That file type is unsupported.')
   end
 
   def test_upload_not_signed_in
