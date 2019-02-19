@@ -45,9 +45,7 @@ def data_path
 end
 
 def upload_path
-  if ENV['RACK_ENV'] == 'test'
-    File.expand_path('../test', __FILE__)
-  end
+  File.expand_path('../test', __FILE__) if ENV['RACK_ENV'] == 'test'
 end
 
 def load_user_credentials
