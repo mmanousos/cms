@@ -14,6 +14,14 @@ configure do
   set :erb, escape_html: true
 end
 
+before do
+  pattern = File.join(data_path, '*')
+  @files = Dir.glob(pattern).map do |path|
+    name = File.basename(path)
+    name.start_with?(/[A-Z]/) ? name : name.capitalize
+  end.sort
+end
+
 helpers do
   def read_message
     if session[:error]
@@ -63,10 +71,6 @@ end
 
 # load index
 get '/' do
-  pattern = File.join(data_path, '*')
-  @files = Dir.glob(pattern).map do |path|
-    File.basename(path)
-  end
   erb :index
 end
 
@@ -163,7 +167,7 @@ end
 def simplify_file_name!(name)
   file, extension = split_name(name)
   extension = extension.tr('A-Z', 'a-z')
-  file = file.gsub(/[\s'"]/, '').strip
+  file = file.gsub(/[\s'"]/, '').capitalize.strip
   "#{file}.#{extension}"
 end
 
