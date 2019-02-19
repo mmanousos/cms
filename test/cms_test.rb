@@ -307,14 +307,13 @@ class CmsTest < Minitest::Test
   end
 
   def test_upload
-    skip
-    # image = File.expand_path('../', 'panda.gif')
-    file = Rack::Test::UploadedFile.new('../panda.gif', "image/jpeg")
+    file_path = File.join(image_path, 'panda.gif')
+    file = Rack::Test::UploadedFile.new(file_path, "image/jpeg")
 
     post '/upload', {fileupload: file}, admin_session
-    assert_equal('was uploaded.', session[:success])
+    assert_equal('panda.gif was uploaded.', session[:success])
 
-    get ['Location']
+    get last_response['Location']
     assert_includes(last_response.body, 'panda.gif') #filename
   end
 

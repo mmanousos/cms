@@ -32,13 +32,18 @@ end
 
 TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
 IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
-OTHER_EXTENSIONS = %w(.pdf).freeze
 
 def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
   else
     File.expand_path('../data', __FILE__)
+  end
+end
+
+def image_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test', __FILE__)
   end
 end
 
@@ -67,16 +72,16 @@ end
 def load_file_content(path)
   content = File.read(path)
   extension = File.extname(path)
-  if File.extname(path) == '.txt'
+  if extension == '.txt' || extension == '.doc'
     headers['Content-Type'] = 'text/plain'
     content
-  elsif File.extname(path) == '.md' || File.extname(path) == '.doc'
+  elsif extension == '.md'
     headers['Content-Type'] = 'text/html'
     erb render_markdown(content)
   elsif IMAGE_EXTENSIONS.include?(extension)
     headers['Content-Type'] = 'image/jpg'
     content
-  elsif OTHER_EXTENSIONS == extension
+  elsif extension == '.pdf'
     headers['Content-Type'] = 'application/pdf'
     content
   end
@@ -152,7 +157,7 @@ end
 def simplify_file_name!(name)
   file, extension = split_name(name)
   extension = extension.tr('A-Z', 'a-z')
-  file.tr(' ', '').strip
+  file = file.tr(' ', '').strip
   "#{file}.#{extension}"
 end
 
