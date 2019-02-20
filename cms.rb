@@ -129,6 +129,10 @@ def file_exists?(file_name)
   File.file?(File.join(data_path, file_name))
 end
 
+def file_too_large?(file_name)
+  File.size(file_name) >= 1500000
+end
+
 # load index
 get '/' do
   erb :index
@@ -190,6 +194,10 @@ post '/upload' do
     erb :upload
   elsif file_exists?(file_details[:filename])
     session[:error] = 'That file already exists.'
+    status 422
+    erb :upload
+  elsif file_too_large?(file_details[:tempfile])
+    session[:error] = 'The file is too big. Please resize or try another file.'
     status 422
     erb :upload
   else
