@@ -342,6 +342,15 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'That file type is unsupported.')
   end
 
+  def test_upload_file_too_large
+    file_path = File.join(upload_path, 'TangerineGimlet.JPG')
+    file = Rack::Test::UploadedFile.new(file_path, 'image/png')
+
+    post '/upload', {fileupload: file}, admin_session
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'The file is too big. Please resize')
+  end
+
   def test_upload_not_signed_in
     post '/upload'
     assert_equal('You must be signed in to do that.', session[:error])

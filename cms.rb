@@ -66,13 +66,13 @@ def load_user_credentials
 end
 
 def invalid_file_type?(possible_extensions, file_name)
-  !possible_extensions.include?(File.extname(file_name))
+  !possible_extensions.include?(File.extname(file_name).downcase)
 end
 
 def simplify_file_name!(name)
   file, extension = split_name(name)
-  extension = extension.tr('A-Z', 'a-z')
-  file = file.gsub(/[\s'"]/, '').capitalize.strip
+  extension = extension.gsub(/[A-Z]/, 'a-z')
+  file = file.split.map(&:capitalize).join.gsub(/['"]/, '').strip
   "#{file}.#{extension}"
 end
 
