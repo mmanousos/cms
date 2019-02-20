@@ -43,8 +43,8 @@ class CmsTest < Minitest::Test
     get '/'
     assert_equal(200, last_response.status)
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
-    assert_includes(last_response.body, 'about.md')
-    assert_includes(last_response.body, 'changes.txt')
+    assert_includes(last_response.body, 'About.md')
+    assert_includes(last_response.body, 'Changes.txt')
   end
 
   def test_document
@@ -169,15 +169,15 @@ class CmsTest < Minitest::Test
   end
 
   def test_post_rename
-    create_document('copy.txt')
-    post '/copy.txt/rename', {rename: 'copy1.txt'}, admin_session
-    assert_equal('copy.txt was renamed to copy1.txt.', session[:success])
+    create_document('Copy.txt')
+    post '/Copy.txt/rename', {rename: 'Copy1.txt'}, admin_session
+    assert_equal('Copy.txt was renamed to Copy1.txt.', session[:success])
     assert_equal(302, last_response.status)
 
     get last_response['Location']
     assert_equal(200, last_response.status)
-    assert_includes(last_response.body, 'copy1.txt</a>')
-    refute_includes(last_response.body, 'copy.txt</a>')
+    assert_includes(last_response.body, 'Copy1.txt</a>')
+    refute_includes(last_response.body, 'Copy.txt</a>')
   end
 
   def test_post_rename_invalid_doc_name
@@ -311,10 +311,10 @@ class CmsTest < Minitest::Test
     file = Rack::Test::UploadedFile.new(file_path, 'image/jpeg')
 
     post '/upload', {fileupload: file}, admin_session
-    assert_equal('panda.gif was uploaded.', session[:success])
+    assert_equal('Panda.gif was uploaded.', session[:success])
 
     get last_response['Location']
-    assert_includes(last_response.body, 'panda.gif')
+    assert_includes(last_response.body, 'Panda.gif')
   end
 
   def test_upload_duplicate_file
