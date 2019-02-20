@@ -125,6 +125,10 @@ def create_document(name, content = '')
   end
 end
 
+def file_exists?(file_name)
+  File.file?(File.join(data_path, file_name))
+end
+
 # load index
 get '/' do
   erb :index
@@ -184,7 +188,7 @@ post '/upload' do
     session[:error] = 'That file type is unsupported. Please use only ' \
                       "#{UPLOAD_EXTENSIONS.join(', ')}."
     erb :upload
-  elsif File.file?(File.join(data_path, file_details[:filename]))
+  elsif file_exists?(file_details[:filename])
     session[:error] = 'That file already exists.'
     status 422
     erb :upload
@@ -210,7 +214,7 @@ post '/create' do
                       "(use #{TEXT_EXTENSIONS.join(', ')})."
     status 422
     erb :new_file
-  elsif File.file?(File.join(data_path, simplify_file_name!(doc_name)))
+  elsif file_exists?(simplify_file_name!(doc_name))
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
     erb :new_file
@@ -237,7 +241,7 @@ post '/:file_name/rename' do
     session[:error] = 'A name is required.'
     status 422
     erb :rename
-  elsif File.file?(File.join(data_path, "#{new_name}.#{extension}"))
+  elsif file_exists?("#{new_name}.#{extension}")
     session[:error] = 'That file already exists. Please choose another name.'
     status 422
     erb :rename
