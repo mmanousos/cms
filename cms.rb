@@ -8,6 +8,10 @@ require 'yaml'
 
 include FileUtils
 
+TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
+IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
+UPLOAD_EXTENSIONS = %w(.md .txt .pdf .jpg .jpeg .gif .png).freeze
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -40,10 +44,6 @@ helpers do
   end
 end
 
-TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
-IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
-UPLOAD_EXTENSIONS = %w(.md .txt .pdf .jpg .jpeg .gif .png).freeze
-
 def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
@@ -69,14 +69,32 @@ def invalid_file_type?(possible_extensions, file_name)
   !possible_extensions.include?(File.extname(file_name))
 end
 
-# load index
-get '/' do
-  erb :index
+def simplify_file_name!(name)
+  file, extension = split_name(name)
+  extension = extension.tr('A-Z', 'a-z')
+  file = file.gsub(/[\s'"]/, '').capitalize.strip
+  "#{file}.#{extension}"
 end
 
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
+end
+
+def verify_signed_in
+  return if session[:signed_in]
+  session[:error] = 'You must be signed in to do that.'
+  redirect '/'
+end
+
+def valid_credentials?(username, password)
+  credentials = load_user_credentials
+  if credentials.key?(username)
+    bcrypt_password = BCrypt::Password.new(credentials[username])
+    bcrypt_password == password
+  else
+    false
+  end
 end
 
 # rubocop:disable Metrics/AbcSize
@@ -101,14 +119,15 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/MethodLength
 
-def signed_in?
-  session[:signed_in]
+def create_document(name, content = '')
+  File.open(File.join(data_path, name), 'w') do |file|
+    file.write(content)
+  end
 end
 
-def verify_signed_in
-  return if signed_in?
-  session[:error] = 'You must be signed in to do that.'
-  redirect '/'
+# load index
+get '/' do
+  erb :index
 end
 
 # display form to create new document
@@ -117,25 +136,9 @@ get '/new' do
   erb :new_file, layout: :layout
 end
 
-def create_document(name, content = '')
-  File.open(File.join(data_path, name), 'w') do |file|
-    file.write(content)
-  end
-end
-
 # display sign in form
 get '/users/signin' do
   erb :sign_in
-end
-
-def valid_credentials?(username, password)
-  credentials = load_user_credentials
-  if credentials.key?(username)
-    bcrypt_password = BCrypt::Password.new(credentials[username])
-    bcrypt_password == password
-  else
-    false
-  end
 end
 
 # sign in
@@ -166,13 +169,6 @@ end
 get '/upload' do
   verify_signed_in
   erb :upload
-end
-
-def simplify_file_name!(name)
-  file, extension = split_name(name)
-  extension = extension.tr('A-Z', 'a-z')
-  file = file.gsub(/[\s'"]/, '').capitalize.strip
-  "#{file}.#{extension}"
 end
 
 # upload file
