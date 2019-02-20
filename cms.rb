@@ -79,6 +79,8 @@ def render_markdown(text)
   markdown.render(text)
 end
 
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
 def load_file_content(path)
   content = File.read(path)
   extension = File.extname(path)
@@ -96,6 +98,8 @@ def load_file_content(path)
     content
   end
 end
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength
 
 def signed_in?
   session[:signed_in]
