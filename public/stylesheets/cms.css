@@ -105,19 +105,23 @@ button {
   color: #fff;
 }
 
+.register,
 #sign_out,
 #sign_in {
   line-height: 3;
   width: 80px;
 }
 
-#sign_in {
+#sign_in,
+.register {
   border-color: #34FF86;
   background-color: #34FF86;
 }
 
 a:hover #sign_in,
-#sign_in:hover {
+#sign_in:hover,
+a:hover .register,
+.register:hover {
   border-color: #34FF86;
   background-color: #9dc1ab;
   color: #34FF86;

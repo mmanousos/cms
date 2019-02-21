@@ -1,3 +1,31 @@
-{
-  developer: $2a$10$Ayfey8r1ArZ0P4xdbPK1Je6GfgVuYKwGvd2vZTV14TkmFuEpJzLAC
-}
+:developer:
+  !ruby/string:BCrypt::Password
+  str: $2a$10$QSfhxK4cQQKW./pG5R0nOu/frDW008kVZ59gQIY5CEf65a9ySWob.
+:testtest:
+  !ruby/string:BCrypt::Password
+  str: $2a$10$.0i7nIsvocVC8tD6ZCUKbu979MwgasFGiEr8gfgOIb9Q45yg7DuBi
+:testtesttest:
+  !ruby/string:BCrypt::Password
+  str: "$2a$10$rIZgY9tpxo1/1JS/4sUxF.YcFV2B12ZN1ccLyhC3oLAoKA2MR2JZy"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$rIZgY9tpxo1/1JS/4sUxF."
+  checksum: YcFV2B12ZN1ccLyhC3oLAoKA2MR2JZy
+:testappend: !ruby/string:BCrypt::Password
+  str: "$2a$10$HxDkPCFtYQ8naR5s5MWWve/koGJPRWOOfDllbgadnZetO/CS1TQky"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$HxDkPCFtYQ8naR5s5MWWve"
+  checksum: "/koGJPRWOOfDllbgadnZetO/CS1TQky"
+:brokentest: !ruby/string:BCrypt::Password
+  str: "$2a$10$ToBw8xf0oF7ThoxHQ6oyie7ykCu3VuflWpAy1TMh2OZUw5asyFdZy"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$ToBw8xf0oF7ThoxHQ6oyie"
+  checksum: 7ykCu3VuflWpAy1TMh2OZUw5asyFdZy
+:anothertest: !ruby/string:BCrypt::Password
+  str: "$2a$10$DZpNuLIhiEr78DLjzPdVZu8CjNUtd8nRHaJJz1fhrtqb/XAjZ/f0O"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$DZpNuLIhiEr78DLjzPdVZu"
+  checksum: 8CjNUtd8nRHaJJz1fhrtqb/XAjZ/f0O

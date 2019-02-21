@@ -56,13 +56,38 @@ def upload_path
   File.expand_path('../test', __FILE__) if ENV['RACK_ENV'] == 'test'
 end
 
+def credentials_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/users.yml', __FILE__)
+  else
+    File.expand_path('../users.yml', __FILE__)
+  end
+end
+
 def load_user_credentials
-  credentials_path = if ENV['RACK_ENV'] == 'test'
-                       File.expand_path('../test/users.yml', __FILE__)
-                     else
-                       File.expand_path('../users.yml', __FILE__)
-                     end
   YAML.load_file(credentials_path)
+end
+
+def encrypt_password(password)
+  BCrypt::Password.create(password)
+end
+
+def clean_yaml
+  content = ''
+  File.open(credentials_path) do |users|
+    content = users.read.gsub(/\n-{3}/, '')
+  end
+  File.open(credentials_path, 'w') do |users|
+    users.write(content)
+  end
+end
+
+# append new user to credentials list
+def write_user_credentials(username, password)
+  File.open(credentials_path, 'a') do |users|
+    users.write(Psych.dump("#{username}": encrypt_password(password)))
+  end
+  clean_yaml
 end
 
 def invalid_file_type?(possible_extensions, file_name)
@@ -136,6 +161,33 @@ end
 # load index
 get '/' do
   erb :index
+end
+
+# display registration form
+get '/users/register' do
+  erb :register
+end
+
+# register new user
+post '/users/register' do
+  username = params[:new_username]
+  password = params[:new_password]
+  credentials = load_user_credentials
+  if username.empty? || password.empty?
+    session[:error] = 'Please enter a valid username and password.'
+    erb :register
+  elsif credentials.key?(username)
+    session[:error] = 'That username already exists. Please choose another.'
+    erb :register
+  else
+    # write username: password to YAML file
+    write_user_credentials(username, password)
+    session[:success] = "Account successfully registered. Welcome, #{username}! "\
+                        "Please save your password for future refrerence: #{password}"
+    session[:signed_in] = true
+    session[:username] = username
+    redirect '/'
+  end
 end
 
 # display form to create new document
