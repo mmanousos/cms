@@ -159,6 +159,37 @@ def file_too_large?(file_name)
   File.size(file_name) >= 1_500_000
 end
 
+def invalid_new_document?(doc_name)
+  if doc_name.empty?
+    'A name is required.'
+  elsif invalid_file_type?(TEXT_EXTENSIONS, doc_name)
+    'Please include a valid extension for your file (use ' \
+    "#{TEXT_EXTENSIONS.join(', ')})."
+  elsif file_exists?(simplify_file_name!(doc_name))
+    'That file already exists. Please choose another name.'
+  end
+end
+
+def invalid_rename?(new_name, extension)
+  if new_name.empty?
+    'A name is required.'
+  elsif file_exists?("#{new_name}.#{extension}")
+    'That file already exists. Please choose another name.'
+  end
+end
+
+def invalid_upload?(file_details)
+  if file_details.nil?
+    'Please select a file to upload.'
+  elsif invalid_file_type?(UPLOAD_EXTENSIONS, file_details[:filename])
+    "That file type is unsupported. Please use #{UPLOAD_EXTENSIONS.join(', ')}."
+  elsif file_exists?(file_details[:filename])
+    'That file already exists.'
+  elsif file_too_large?(file_details[:tempfile])
+    'The file is too big. Please resize or try another file.'
+  end
+end
+
 # load index
 get '/' do
   erb :index
@@ -237,21 +268,8 @@ end
 post '/upload' do
   verify_signed_in
   file_details = params[:fileupload]
-  if file_details.nil?
-    status 422
-    session[:error] = 'Please select a file to upload.'
-    erb :upload
-  elsif invalid_file_type?(UPLOAD_EXTENSIONS, file_details[:filename])
-    status 415
-    session[:error] = 'That file type is unsupported. Please use only ' \
-                      "#{UPLOAD_EXTENSIONS.join(', ')}."
-    erb :upload
-  elsif file_exists?(file_details[:filename])
-    session[:error] = 'That file already exists.'
-    status 409
-    erb :upload
-  elsif file_too_large?(file_details[:tempfile])
-    session[:error] = 'The file is too big. Please resize or try another file.'
+  session[:error] = invalid_upload?(file_details)
+  if session[:error]
     status 422
     erb :upload
   else
@@ -263,22 +281,13 @@ post '/upload' do
   end
 end
 
-# validate and create new document
+# create new document
 post '/create' do
   verify_signed_in
   doc_name = params[:file_name].strip
-  if doc_name.empty?
-    session[:error] = 'A name is required.'
+  session[:error] = invalid_new_document?(doc_name)
+  if session[:error]
     status 422
-    erb :new_file
-  elsif invalid_file_type?(TEXT_EXTENSIONS, doc_name)
-    session[:error] = 'Please include a valid extension for your file ' \
-                      "(use #{TEXT_EXTENSIONS.join(', ')})."
-    status 422
-    erb :new_file
-  elsif file_exists?(simplify_file_name!(doc_name))
-    session[:error] = 'That file already exists. Please choose another name.'
-    status 409
     erb :new_file
   else
     create_document(doc_name)
@@ -293,19 +302,15 @@ get '/:file_name/rename' do
   erb :rename
 end
 
-# validate new name and rename document
+# rename document
 post '/:file_name/rename' do
   verify_signed_in
   old_name = params[:file_name]
   extension = split_name(params[:file_name]).last
   new_name = params[:rename].strip
-  if new_name.empty?
-    session[:error] = 'A name is required.'
+  session[:error] = invalid_rename?(new_name, extension)
+  if session[:error]
     status 422
-    erb :rename
-  elsif file_exists?("#{new_name}.#{extension}")
-    session[:error] = 'That file already exists. Please choose another name.'
-    status 409
     erb :rename
   else
     new_name = simplify_file_name!("#{new_name}.#{extension}")

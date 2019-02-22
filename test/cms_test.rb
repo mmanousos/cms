@@ -173,7 +173,7 @@ class CmsTest < Minitest::Test
   def test_post_new_doc_already_exists
     create_document('copy.txt')
     post '/create', {file_name: 'copy.txt'}, admin_session
-    assert_equal(409, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
@@ -200,7 +200,7 @@ class CmsTest < Minitest::Test
   def test_post_rename_already_exists
     create_document('copy.txt')
     post '/copy.txt/rename', {rename: 'copy'}, admin_session
-    assert_equal(409, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
@@ -366,7 +366,7 @@ class CmsTest < Minitest::Test
 
     post '/upload', {fileupload: file}, admin_session
     post '/upload', {fileupload: file}, admin_session
-    assert_equal(409, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
@@ -381,7 +381,7 @@ class CmsTest < Minitest::Test
     file = Rack::Test::UploadedFile.new(file_path, 'text/plain')
 
     post '/upload', {fileupload: file}, admin_session
-    assert_equal(415, last_response.status)
+    assert_equal(422, last_response.status)
     assert_includes(last_response.body, 'That file type is unsupported.')
   end
 
