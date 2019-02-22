@@ -1,3 +1,6 @@
-:admin:
-  !ruby/string:BCrypt::Password
-  str: $2a$10$LX6gN9PrVxz7BM9Za75mPubUn0i6XRqUwkmRR8jMdLhK/hrC.lOke
+:administrator: !ruby/string:BCrypt::Password
+  str: "$2a$10$GjogA/PI6GpXbp4n7Jmzdu7cQk0.MJJmZr7GDB9AKbZO01dTY.wqq"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$GjogA/PI6GpXbp4n7Jmzdu"
+  checksum: 7cQk0.MJJmZr7GDB9AKbZO01dTY.wqq
