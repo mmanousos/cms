@@ -173,9 +173,11 @@ post '/users/register' do
   username = params[:new_username]
   password = params[:new_password]
   if username.empty? || password.empty?
+    status 422
     session[:error] = 'Please enter a valid username and password.'
     erb :register
   elsif load_user_credentials.key?(username.to_sym)
+    status 409
     session[:error] = 'That username already exists. Please choose another.'
     erb :register
   else

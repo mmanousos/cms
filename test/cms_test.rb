@@ -36,6 +36,15 @@ class CmsTest < Minitest::Test
     { 'rack.session' => { username: 'admin', signed_in: true } }
   end
 
+  def random_username
+    username = ''
+    letters = ('a'..'z').to_a
+    8.times do
+      username += letters.sample
+    end
+    username
+  end
+
   def test_index
     create_document('about.md')
     create_document('changes.txt')
@@ -239,6 +248,38 @@ class CmsTest < Minitest::Test
     post '/to_delete.md/delete'
     assert_equal(302, last_response.status)
     assert_equal('You must be signed in to do that.', session[:error])
+  end
+
+  def test_display_registration_form
+    get '/users/register'
+    assert_equal(200, last_response.status)
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, "name='register'")
+  end
+
+  def test_registration
+    username = random_username
+    post '/users/register', new_username: username, new_password: 'A1!bcdef'
+    assert_equal(302, last_response.status)
+    assert_equal(true, session[:signed_in])
+    assert_equal(username, session[:username])
+
+    get last_response['Location']
+    assert_includes(last_response.body, "Welcome, #{username}!")
+  end
+
+  def test_failed_registration
+    post '/users/register', new_username: 'administrator', new_password: 'A1!bcdef'
+    assert_equal(409, last_response.status)
+    assert_includes(last_response.body, 'username already exists')
+
+    post '/users/register', new_username: '', new_password: 'A1!bcdef'
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Please enter a valid username and password.')
+
+    post '/users/register', new_username: 'testingnames', new_password: ''
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Please enter a valid username and password.')
   end
 
   def test_sign_in
