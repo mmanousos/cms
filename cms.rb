@@ -330,9 +330,14 @@ post '/:file_name/delete' do
   verify_signed_in
   doc = params[:file_name]
   file_path = File.join(data_path, doc)
-  File.delete(file_path)
-  session[:success] = "#{doc} has been deleted."
-  redirect '/'
+  if env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+    File.delete(file_path)
+    status 204
+  else
+    File.delete(file_path)
+    session[:success] = "#{doc} has been deleted."
+    redirect '/'
+  end
 end
 
 # display document
