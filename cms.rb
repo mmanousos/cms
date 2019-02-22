@@ -114,7 +114,7 @@ end
 
 def valid_credentials?(username, password)
   credentials = load_user_credentials
-  if credentials.key?(username)
+  if credentials.key?(username.to_sym)
     bcrypt_password = BCrypt::Password.new(credentials[username])
     bcrypt_password == password
   else
@@ -172,15 +172,13 @@ end
 post '/users/register' do
   username = params[:new_username]
   password = params[:new_password]
-  credentials = load_user_credentials
   if username.empty? || password.empty?
     session[:error] = 'Please enter a valid username and password.'
     erb :register
-  elsif credentials.key?(username)
+  elsif load_user_credentials.key?(username.to_sym)
     session[:error] = 'That username already exists. Please choose another.'
     erb :register
   else
-    # write username: password to YAML file
     write_user_credentials(username, password)
     session[:success] = "Account successfully registered. Welcome, #{username}! "\
                         "Please save your password for future refrerence: #{password}"
@@ -205,7 +203,7 @@ end
 post '/users/signin' do
   username = params[:username].strip
   password = params[:password].strip
-  if valid_credentials?(username, password)
+  if valid_credentials?(username.to_sym, password)
     session[:success] = 'Welcome!'
     session[:signed_in] = true
     session[:username] = username
