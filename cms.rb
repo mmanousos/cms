@@ -6,8 +6,6 @@ require 'sinatra/content_for'
 require 'tilt/erubis'
 require 'yaml'
 
-include FileUtils
-
 TEXT_EXTENSIONS = %w(.md .txt .doc).freeze
 IMAGE_EXTENSIONS = %w(.jpg .jpeg .gif .png).freeze
 UPLOAD_EXTENSIONS = %w(.md .txt .pdf .jpg .jpeg .gif .png).freeze
@@ -122,17 +120,22 @@ def valid_credentials?(username, password)
   end
 end
 
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/MethodLength
+def determine_text_display(extension, content)
+  case extension
+  when '.txt', '.doc'
+    headers['Content-Type'] = 'text/plain'
+    content
+  when '.md'
+    headers['Content-Type'] = 'text/html'
+    erb render_markdown(content)
+  end
+end
+
 def load_file_content(path)
   content = File.read(path)
   extension = File.extname(path)
-  if extension == '.txt' || extension == '.doc'
-    headers['Content-Type'] = 'text/plain'
-    content
-  elsif extension == '.md'
-    headers['Content-Type'] = 'text/html'
-    erb render_markdown(content)
+  if TEXT_EXTENSIONS.include?(extension)
+    determine_text_display(extension, content)
   elsif IMAGE_EXTENSIONS.include?(extension)
     headers['Content-Type'] = 'image/jpg'
     content
@@ -141,8 +144,6 @@ def load_file_content(path)
     content
   end
 end
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/MethodLength
 
 def create_document(name, content = '')
   File.open(File.join(data_path, name), 'w') do |file|
@@ -155,7 +156,7 @@ def file_exists?(file_name)
 end
 
 def file_too_large?(file_name)
-  File.size(file_name) >= 1500000
+  File.size(file_name) >= 1_500_000
 end
 
 # load index
@@ -182,8 +183,9 @@ post '/users/register' do
     erb :register
   else
     write_user_credentials(username, password)
-    session[:success] = "Account successfully registered. Welcome, #{username}! "\
-                        "Please save your password for future refrerence: #{password}"
+    session[:success] = "Account successfully registered. Welcome, " \
+                        "#{username}! Please save your password for future " \
+                        "refrerence: #{password}"
     session[:signed_in] = true
     session[:username] = username
     redirect '/'
