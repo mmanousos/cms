@@ -1,0 +1,12 @@
+<form action='/users/register' method='post'>
+  <label for='username'><h3>Select username</h3></label>
+  <input type='text' minlength='8' maxlength='20' pattern='[a-zA-Z]{8,20}' id='username' name='new_username' value="" placeholder='username'>
+  <span class='italic'>Username must be betweeen 8-20 letters and may not include spaces.</span>
+  <label for='password'><h3>Choose password</h3></label>
+  <input type='password' minlength='8' maxlength='20' pattern='^[A-Z][a-zA-Z0-9!*\-?]{1,17}[a-zA-Z0-9!*\-?]{1,17}[a-zA-Z0-9!*\-?]{1,17}$' id='password' name='new_password' value="" placeholder='password'>
+  <span class='italic'>Password must be between 8-20 characters, start with an uppercase letter, and include one lowercase character, one number, and one special character (!*-?)</span>
+  <p>
+    <button type='submit' class='register' name='register'>Register</button>
+  </p>
+</form>
+<a href='/'><button class='cancel'>Cancel</button></a>
