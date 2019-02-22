@@ -212,7 +212,7 @@ post '/users/signin' do
     redirect '/'
   else
     session[:error] = 'Invalid Credentials'
-    status 422
+    status 409
     erb :sign_in
   end
 end
@@ -246,7 +246,7 @@ post '/upload' do
     erb :upload
   elsif file_exists?(file_details[:filename])
     session[:error] = 'That file already exists.'
-    status 422
+    status 409
     erb :upload
   elsif file_too_large?(file_details[:tempfile])
     session[:error] = 'The file is too big. Please resize or try another file.'
@@ -276,7 +276,7 @@ post '/create' do
     erb :new_file
   elsif file_exists?(simplify_file_name!(doc_name))
     session[:error] = 'That file already exists. Please choose another name.'
-    status 422
+    status 409
     erb :new_file
   else
     create_document(doc_name)
@@ -303,7 +303,7 @@ post '/:file_name/rename' do
     erb :rename
   elsif file_exists?("#{new_name}.#{extension}")
     session[:error] = 'That file already exists. Please choose another name.'
-    status 422
+    status 409
     erb :rename
   else
     new_name = simplify_file_name!("#{new_name}.#{extension}")

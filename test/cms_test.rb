@@ -173,7 +173,7 @@ class CmsTest < Minitest::Test
   def test_post_new_doc_already_exists
     create_document('copy.txt')
     post '/create', {file_name: 'copy.txt'}, admin_session
-    assert_equal(422, last_response.status)
+    assert_equal(409, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
@@ -200,7 +200,7 @@ class CmsTest < Minitest::Test
   def test_post_rename_already_exists
     create_document('copy.txt')
     post '/copy.txt/rename', {rename: 'copy'}, admin_session
-    assert_equal(422, last_response.status)
+    assert_equal(409, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
@@ -282,15 +282,17 @@ class CmsTest < Minitest::Test
     assert_includes(last_response.body, 'Please enter a valid username and password.')
   end
 
-  def test_sign_in
+  def test_sign_in_form
     get '/users/signin'
     assert_equal(200, last_response.status)
     assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, "id='username'")
     assert_includes(last_response.body, "id='password'")
     assert_includes(last_response.body, "name='signin'>Sign In</button>")
+  end
 
-    post '/users/signin', username: 'admin', password: 'secret'
+  def test_sign_in
+    post '/users/signin', username: 'administrator', password: 'A1!bcdef'
     assert_equal(302, last_response.status)
     assert_equal('Welcome!', session[:success])
 
@@ -309,11 +311,11 @@ class CmsTest < Minitest::Test
 
   def test_failed_sign_in
     post '/users/signin', username: '', password: ''
-    assert_equal(422, last_response.status)
+    assert_equal(409, last_response.status)
     assert_includes(last_response.body, 'Invalid Credentials')
 
     post '/users/signin', username: 'xxx', password: 'xxx'
-    assert_equal(422, last_response.status)
+    assert_equal(409, last_response.status)
     assert_includes(last_response.body, 'Invalid Credentials')
   end
 
@@ -364,7 +366,7 @@ class CmsTest < Minitest::Test
 
     post '/upload', {fileupload: file}, admin_session
     post '/upload', {fileupload: file}, admin_session
-    assert_equal(422, last_response.status)
+    assert_equal(409, last_response.status)
     assert_includes(last_response.body, 'That file already exists.')
   end
 
