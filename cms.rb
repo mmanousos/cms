@@ -182,7 +182,7 @@ def invalid_upload?(file_details)
   if file_details.nil?
     'Please select a file to upload.'
   elsif invalid_file_type?(UPLOAD_EXTENSIONS, file_details[:filename])
-    "That file type is unsupported. Please use #{UPLOAD_EXTENSIONS.join(', ')}."
+    "Unsupported file type. Please only use #{UPLOAD_EXTENSIONS.join(', ')}."
   elsif file_exists?(file_details[:filename])
     'That file already exists.'
   elsif file_too_large?(file_details[:tempfile])
